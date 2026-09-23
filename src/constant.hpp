@@ -26,3 +26,16 @@ constexpr float INV_DOUBLE_PI = 0.159154943091895336f;
 /// 可在 xml 的 <camera exposure="..."/> 中逐场景覆盖，也可用 PathTracer::setExposure() 调整
 /// </summary>
 constexpr float DEFAULT_EXPOSURE = 300.f;
+
+/// <summary>
+/// 极光滑镜面的判定阈值（a2 为微表面平方粗糙度）。
+/// a2 小于该值时叶瓣半宽已不足约 1.8 度，按理想 δ 镜面处理：
+/// 反射方向唯一确定，可消除 GGX 叶瓣抖动在镜面像素上与场景对比度成正比的巨大方差
+/// </summary>
+constexpr float DELTA_SPECULAR_A2 = 1e-3f;
+
+/// <summary>
+/// δ 镜面的密度占位值：δ 分布不是普通密度函数，这里取一个远大于任何光源 pdf 的常数，
+/// 使 MIS 在“镜面反射后命中光源”时把权重几乎全部交给 BSDF 采样这一路
+/// </summary>
+constexpr float DELTA_SPECULAR_PDF = 1e8f;

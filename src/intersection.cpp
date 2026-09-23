@@ -8,6 +8,12 @@ bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfV
 		pdf = localWi.y * INV_PI;
 		brdfVal = material->getDiffuse(uv) * INV_PI;
 	}else if (material->type == SPECULAR) {
+		//δ 镜面：NEE 命中它的概率为 0，直接返回零贡献（反射光全部由 BSDF 采样这一路带回）
+		if (material->isDeltaSpecular()) {
+			pdf = 0.f;
+			brdfVal = glm::vec3(0);
+			return false;
+		}
 		glm::vec3 h = glm::normalize(wi - wo);
 		float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 		float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
@@ -27,6 +33,22 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 		return diffuseReflect(wi, pdf, sampler);
 	}
 	if (material->type == SPECULAR) {
+		if (material->isDeltaSpecular()) {
+			//理想 δ 镜面：反射方向唯一，不再对叶瓣做抖动采样
+			glm::vec3 reflected = glm::reflect(wo, normal);
+			float cosTheta = glm::dot(normal, reflected);
+			if (cosTheta <= 0.f) {
+				pdf = 0.f;
+				return glm::vec3(0);
+			}
+			wi = glm::normalize(reflected);
+			//δ 分布的密度不是普通函数：这里返回 (brdf, pdf) 的一组等价表示，
+			//使上层 brdf * radiance * cos / pdf 恰好等于菲涅尔反射率 F 乘入射辐亮度，
+			//同时把 pdf 交给 MIS 表示“镜面这一路远优于光源采样”。
+			glm::vec3 f = schlickFresnel(material->specular, cosTheta);
+			pdf = DELTA_SPECULAR_PDF;
+			return f * DELTA_SPECULAR_PDF / cosTheta;
+		}
 		return specularReflect(wo, wi, pdf, sampler);
 	}
 	if (material->type == DIFFUSE_SPECULAR) {

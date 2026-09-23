@@ -37,7 +37,7 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_scene = scene;
 	m_camera = camera;
 	m_sampler = new Sampler();
-	m_spp = 16;
+	m_spp = 256;
 	int pixelNum = camera->getWidth() * camera->getHeight();
 	m_image = new unsigned char[pixelNum * 4];
 	//线性 HDR 累加缓冲，出图时再做曝光与色调映射
@@ -211,7 +211,8 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 	}
 	m_sampler->shuffle();
 
-	glm::vec3 direct = sampleDirectLight(ray.direction, intersection);
+	//δ 镜面的直接光贡献恒为 0（NEE 不可能命中），跳过采样以省去无效的光源采样与阴影射线
+	glm::vec3 direct = intersection.material->isDeltaSpecular() ? glm::vec3(0) : sampleDirectLight(ray.direction, intersection);
 
 	//计算间接光照，通过BRDF采样新方向
 	glm::vec3 wi;

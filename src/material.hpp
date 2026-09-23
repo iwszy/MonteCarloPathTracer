@@ -132,4 +132,10 @@ public:
 		}
 		a2 = glm::clamp(2 / (shininess + 2), 0.0001f, 1.f);
 	}
+	/// <summary>
+	/// 是否按理想 δ 镜面处理：仅对纯镜面材质生效（含漫反射分量的混合材质仍走 GGX 叶瓣）
+	/// </summary>
+	bool isDeltaSpecular() const {
+		return type == SPECULAR && a2 < DELTA_SPECULAR_A2;
+	}
 };
