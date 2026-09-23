@@ -1,0 +1,78 @@
+# ============================================================
+#  Visual Studio / MSBuild 构建产物与本地状态
+#  —— 只把源码、工程文件与资源纳入版本管理
+# ============================================================
+
+# VS 本地缓存（本工程里占了 3.4 GB，务必忽略）
+.vs/
+
+# 解决方案 / 项目级的本地用户设置
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.user
+*.DotSettings.user
+
+# IntelliSense / 浏览数据库 / 预编译头缓存
+*.ipch
+*.vsidx
+*.VC.db
+*.VC.VC.opendb
+*.psess
+*.vsp
+*.vspx
+
+# 编译中间目录
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM/
+ARM64/
+# 本工程 MSBuild 的中间目录，形如 MonteCar.14674e6a/
+MonteCar.*/
+*.tlog
+*.log
+
+# 编译产物
+*.obj
+!models/**/*.obj
+*.exe
+*.dll
+*.lib
+*.exp
+*.ilk
+*.pdb
+*.idb
+*.iobj
+*.ipdb
+*.pch
+*.res
+*.tlh
+*.tli
+*.recipe
+*.lastbuildstate
+*.bsc
+*.sbr
+*.G.Cache
+
+# 超大场景资源：bathroom2 场景约 350 MB（obj 124 MB + Maya 源文件 108 MB + 拆分网格 119 MB），
+# 超过托管仓库的合理体积，不纳入版本管理；渲染前从课程资源重新拷贝即可。
+models/bathroom2/
+
+# Maya 源文件（渲染器不读取，仅作建模源）
+*.mb
+
+# 渲染结果中的 EXR/HDR
+*.exr
+*.hdr
+
+# 杂项
+*.tmp
+*.bak
+*.orig
+Thumbs.db
+desktop.ini
