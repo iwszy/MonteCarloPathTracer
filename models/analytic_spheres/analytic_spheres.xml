@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene>
+	<camera type="perspective" width="256" height="256" fovy="45" exposure="1.0">
+		<eye x="0" y="0" z="12"/>
+		<lookat x="0" y="0" z="0"/>
+		<up x="0" y="1" z="0"/>
+	</camera>
+	<background radiance="1.0, 1.0, 1.0"/>
+</scene>
