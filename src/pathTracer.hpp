@@ -12,15 +12,11 @@
 constexpr int MAX_DEPTH = 8;
 
 /// <summary>
-/// 全局曝光系数：把物理辐射亮度映射到 8bit 显示范围
-/// （原先 NEE 策略用 800、BSDF 策略用 40 两个互不一致的放大系数，现统一为一个全局曝光量）
+/// 默认曝光系数：物理辐射亮度先乘曝光，再经 ACES 色调映射与 sRGB 编码写成 8bit 图片
+/// （原先分散在 NEE/BSDF 两条路径里的 800 与 40 两个魔数已删除，这里只留一个统一曝光量）
+/// 可在运行时用 PathTracer::setExposure() 调整
 /// </summary>
-constexpr float EXPOSURE = 400.f;
-/// <summary>
-/// 说明：400 是按"中间调落在显示范围内、过曝比例与参考图接近"调出来的值。
-/// 逐采样的亮度截断仍然存在（见 renderPixel 中的 clamp），
-/// 后续应改为 HDR 浮点累加 + 色调映射，届时曝光只需作为相机参数调整。
-/// </summary>
+constexpr float DEFAULT_EXPOSURE = 300.f;
 
 /// <summary>
 /// 路径追踪核心类，实现路径追踪
@@ -39,6 +35,22 @@ public:
 	/// 保存渲染完成后的渲染图片
 	/// </summary>
 	/// <param name="modelName">模型名称</param>
+	/// <summary>
+	/// 设置曝光系数（渲染完成后只要重新 developImage() 即可换曝光出图，无需重新渲染）
+	/// </summary>
+	void setExposure(float exposure) { m_exposure = exposure; }
+	/// <summary>
+	/// 获取当前曝光系数
+	/// </summary>
+	float getExposure() const { return m_exposure; }
+	/// <summary>
+	/// 把线性 HDR 缓冲显影为 8bit 显示图：曝光 -> ACES 色调映射 -> sRGB 编码
+	/// </summary>
+	void developImage() const;
+	/// <summary>
+	/// 输出线性 HDR 结果（Radiance .hdr），便于后期自行调整
+	/// </summary>
+	void saveHDR(const std::string& modelName) const;
 	void save(std::string modelName) const;
 private:
 	/// <summary>
@@ -62,6 +74,15 @@ private:
 	/// 渲染图像的存储位置
 	/// </summary>
 	unsigned char* m_image;
+
+	/// <summary>
+	/// 线性 HDR 累加缓冲（3 个 float / 像素）：渲染结果先无损累加到这里
+	/// </summary>
+	float* m_hdrImage;
+	/// <summary>
+	/// 相机曝光系数（物理辐射亮度 -> 色调映射输入）
+	/// </summary>
+	float m_exposure;
 
 	/// <summary>
 	/// 渲染像素块中像素

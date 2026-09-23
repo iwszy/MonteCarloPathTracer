@@ -12,7 +12,12 @@ Texture::Texture(const std::string& filepath) {
         m_data = new glm::vec3[pixelNum];
         //stb导入的像素值在0-255，且RGB值分别存储，为方便使用将每个像素的RGB值作为一个vec3存储，并将像素值归一到0-1
         for (int i = 0, index = 0; i < pixelNum; i++, index += 3) {
-            m_data[i] = glm::vec3(data[index], data[index + 1], data[index + 2]) / 255.f;
+		//贴图文件按 sRGB 存储，这里解码到线性空间再参与渲染；
+            //若不解码，贴图物体在输出端做 sRGB 编码后会明显偏亮（此前不解码也不编码，误差是相互抵消的）
+            glm::vec3 srgb = glm::vec3(data[index], data[index + 1], data[index + 2]) / 255.f;
+            glm::vec3 lo = srgb / 12.92f;
+            glm::vec3 hi = glm::pow((srgb + 0.055f) / 1.055f, glm::vec3(2.4f));
+            m_data[i] = glm::mix(hi, lo, glm::lessThan(srgb, glm::vec3(0.04045f)));
         }
         stbi_image_free(data);
     }

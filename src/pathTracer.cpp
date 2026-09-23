@@ -25,11 +25,41 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 PathTracer::~PathTracer() {
 	delete m_scene;
 	delete m_camera;
-	delete m_image;
+	delete[] m_image;
+	delete[] m_hdrImage;
+	delete m_sampler;
+}
+
+void PathTracer::developImage() const {
+	//把线性 HDR 缓冲"显影"成 8bit 显示图：曝光 -> ACES 色调映射 -> sRGB 编码
+	const int pixelNum = m_camera->getWidth() * m_camera->getHeight();
+	for (int i = 0; i < pixelNum; i++) {
+		glm::vec3 hdr(m_hdrImage[i * 3], m_hdrImage[i * 3 + 1], m_hdrImage[i * 3 + 2]);
+		//数值保护：NaN（0/0 之类）置 0，其余夹到 [0, 1e30]，避免写出未定义的颜色
+		if (!(hdr[0] == hdr[0]) || !(hdr[1] == hdr[1]) || !(hdr[2] == hdr[2])) {
+			hdr = glm::vec3(0);
+		}
+		hdr = glm::clamp(hdr, glm::vec3(0), glm::vec3(1e30f));
+		glm::vec3 mapped = linearToSRGB(tonemapACES(hdr * m_exposure));
+		const int index = i * 4;
+		m_image[index] = toByte(mapped[0]);
+		m_image[index + 1] = toByte(mapped[1]);
+		m_image[index + 2] = toByte(mapped[2]);
+		m_image[index + 3] = 255;
+	}
+}
+
+void PathTracer::saveHDR(const std::string& modelName) const {
+	//线性 HDR 结果（Radiance .hdr / RGBE），方便后期自己调曝光与色调映射
+	std::string path = "results/" + modelName + "_" + std::to_string(m_spp) + ".hdr";
+	stbi_flip_vertically_on_write(1);
+	stbi_write_hdr(path.c_str(), m_camera->getWidth(), m_camera->getHeight(), 3, m_hdrImage);
 }
 
 void PathTracer::save(std::string modelName) const {
 	stbi_flip_vertically_on_write(1);
+	developImage();
+	saveHDR(modelName);
 	stbi_write_png(modelName.insert(0, "results/").append("_").append(std::to_string(m_spp)).append(".png").c_str(),
 		m_camera->getWidth(), m_camera->getHeight(), 4, m_image, 0);
 }
@@ -52,31 +82,29 @@ void PathTracer::render() {
 }
 
 void PathTracer::renderPixel(int x, int y) {
-	int imageX0 = x << 5, imageX1 = glm::min((x + 1) << 5, m_camera->getWidth());
-	int imageY0 = y << 5, imageY1 = glm::min((y + 1) << 5, m_camera->getHeight());
-	int step = (m_camera->getWidth() + imageX0 - imageX1) << 2, index = (m_camera->getWidth() * imageY0 + imageX0) << 2;
+	//把图像分成 32x32 的小块，每个块由一个线程负责
+	const int width = m_camera->getWidth();
+	const int imageX0 = x << 5, imageX1 = glm::min((x + 1) << 5, width);
+	const int imageY0 = y << 5, imageY1 = glm::min((y + 1) << 5, m_camera->getHeight());
 	for (int n = imageY0; n < imageY1; n++) {
 		for (int m = imageX0; m < imageX1; m++) {
+			const int pixel = n * width + m;
 			glm::vec3 color(0);
-			m_sampler->initialize(index >> 2);
+			m_sampler->initialize(static_cast<uint32_t>(pixel));
 			for (int i = 0; i < m_spp; i++) {
 				m_sampler->setIndex(i);
 				glm::vec2 rnd = m_sampler->get2D(0);
 				Ray ray = m_camera->generateRay(m + rnd.x, n + rnd.y);
-				glm::vec3 tmpColor = glm::clamp(trace(ray, 0), glm::vec3(0), glm::vec3(1));
-				color += tmpColor;
+				//线性 HDR 累加，不做逐采样截断：
+				//逐采样 clamp 会把高光压暗并让均值有偏，正确的做法是累加辐亮度、出图时统一曝光 + 色调映射
+				color += trace(ray, 0);
 			}
-			color /= m_spp;
-			//全局曝光：物理辐射亮度映射到显示范围（替代原先分散在两个策略里的放大魔数）
-			color *= EXPOSURE;
-			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[0], 0.f, 1.f) * 255);
-			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[1], 0.f, 1.f) * 255);
-			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[2], 0.f, 1.f) * 255);
-			index++;
+			color /= static_cast<float>(m_spp);
+			m_hdrImage[pixel * 3] = color[0];
+			m_hdrImage[pixel * 3 + 1] = color[1];
+			m_hdrImage[pixel * 3 + 2] = color[2];
 		}
-		index += step;
 	}
-	
 }
 
 void PathTracer::bilateralFilter(int k, float sigmaD, float sigmaR) {
