@@ -107,14 +107,15 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	glm::vec3 h = glm::normalize(wi - wo);
 	float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 	float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
+	//作业 mtl 是 Phong 语义：Kd=漫反射率、Ks=高光颜色、Ns=高光指数。
+	//这里让 Ks 只作为高光的“颜色/强度”，菲涅尔用 4% 介电基底；
+	//若像金属度工作流那样把 Ks 直接当 F0，高光能量会高出一个数量级，
+	//veach-mis 的条面会被白色高光冲成灰白（实测条面亮度 0.556 vs 参考 0.290）。
+	glm::vec3 f = material->specular * schlickFresnel(glm::vec3(0.04f), glm::dot(wi, h));
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
 	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
-	//能量守恒的漫反射/镜面组合：只有没被镜面反射掉的那部分能量才进入漫反射层
-	//（标准 PBR 写法 f = (1-F)·Kd/π + F·D·V）。原先直接相加 Kd/π + F·D·V，
-	//在 Kd+Ks>1 的材质上每个反弹都放大能量，封闭场景里逐次累积会导致整幅图明显偏亮。
-	return (glm::vec3(1) - f) * diffuseVal + d * f * v;
+	return diffuseVal + d * f * v;
 }
 
 void Intersection::setNormal(glm::vec3 n) {
