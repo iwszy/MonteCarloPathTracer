@@ -59,7 +59,7 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 		while (std::getline(iss, token, ',')) {
 			radiance[index++] = std::stof(token);
 		}
-		Material lightMaterial = model->getMaterial(materialName);
+		const Material& lightMaterial = model->getMaterial(materialName);
 		if (glm::dot(lightMaterial.diffuse, glm::vec3(1)) > EPSILON) {
 			radiance *=lightMaterial.diffuse;
 		}

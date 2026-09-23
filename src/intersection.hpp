@@ -28,7 +28,7 @@ public:
 	/// <summary>
 	/// 交点所在面的材质
 	/// </summary>
-	Material material;
+	const Material* material = nullptr;
 	/// <summary>
 	/// 交点所在面的索引
 	/// </summary>

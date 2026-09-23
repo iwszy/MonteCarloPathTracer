@@ -180,11 +180,11 @@ void Model::setLight(const std::string& materialName, const glm::vec3& radiance)
 	m_materials[materialName].faces.clear();
 }
 
-void Model::freeAxisParams() const{
+void Model::freeAxisParams() {
 	delete[] m_axisCenters;
 	delete[] m_axisMaximums;
 	delete[] m_axisMinimums;
-	for (auto material: m_materials) {
+	for (auto& material : m_materials) {
 		material.second.faces.clear();
 	}
 }

@@ -9,7 +9,7 @@ BVH::BVH(int* triangles, int n, Model* model) {
 	//由于每个节点在构建前已经算好了包围盒，故第一个节点需在调用构建函数前单独计算
 	float* min = new float[3], * max = new float[3];
 	min[0] = std::numeric_limits<float>::max(); min[1] = min[0]; min[2] = min[0];
-	max[0] = std::numeric_limits<float>::min(); max[1] = max[0]; max[2] = max[0];
+	max[0] = std::numeric_limits<float>::lowest(); max[1] = max[0]; max[2] = max[0];
 	calculateBoundingBox(triangles, 0, n - 1, min, max);
 	build(triangles, 0, n - 1, min, max);
 }
@@ -160,8 +160,8 @@ bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersecti
 	intersection.t = t;
 	glm::vec3* normals = m_model->getNormal(id);
 	intersection.setNormal(glm::normalize(alpha * normals[0] + beta * normals[1] + gamma * normals[2]));
-	intersection.material = m_model->getMaterial(id);
-	if (intersection.material.texture != nullptr) {
+	intersection.material = &m_model->getMaterial(id);
+	if (intersection.material->texture != nullptr) {
 		glm::vec2* uvs = m_model->getUV(id);
 		intersection.uv = alpha * uvs[0] + beta * uvs[1] + gamma * uvs[2];
 		delete[] uvs;
@@ -173,7 +173,7 @@ bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersecti
 
 void BVH::calculateBoundingBox(int* triangles, int left, int right, float min[], float max[]) const {
 	min[0] = std::numeric_limits<float>::max(); min[1] = min[0]; min[2] = min[0];
-	max[0] = std::numeric_limits<float>::min(); max[1] = max[0]; max[2] = max[0];
+	max[0] = std::numeric_limits<float>::lowest(); max[1] = max[0]; max[2] = max[0];
 	for (int i = left; i <= right; i++) {
 		min[0] = glm::min(min[0], m_model->getAxisMinimum(triangles[i], 0));
 		max[0] = glm::max(max[0], m_model->getAxisMaximum(triangles[i], 0));

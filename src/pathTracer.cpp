@@ -128,9 +128,9 @@ glm::vec3 PathTracer::trace(Ray ray, int depth) {
 	if (!m_scene->hit(ray, intersection)) {
 		return m_scene->getBackground();
 	}
-	if (intersection.material.type == LIGHT) {
+	if (intersection.material->type == LIGHT) {
 		//光源颜色普遍较暗，故需要放大光源颜色
-		return intersection.material.radiance * 40.f;
+		return intersection.material->radiance * 40.f;
 	}
 	m_sampler->shuffle();
 

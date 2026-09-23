@@ -90,13 +90,13 @@ public:
 	/// </summary>
 	/// <param name="i">面索引</param>
 	/// <returns>对应三角面的材质</returns>
-	Material getMaterial(int i) const { return m_materials.at(m_faces[i].materialName); }
+	const Material& getMaterial(int i) const { return m_materials.at(m_faces[i].materialName); }
 	/// <summary>
 	/// 根据材质名称获取对应的材质
 	/// </summary>
 	/// <param name="materialName">材质名称</param>
 	/// <returns>对应的材质</returns>
-	Material getMaterial(const std::string& materialName) const { return m_materials.at(materialName); }
+	const Material& getMaterial(const std::string& materialName) const { return m_materials.at(materialName); }
 	/// <summary>
 	/// 将指定材质设置为光源类型
 	/// </summary>
@@ -131,7 +131,7 @@ public:
 	/// <summary>
 	/// 释放所存储的所有轴的中心位置、最大值、最小值的内存
 	/// </summary>
-	void freeAxisParams() const;
+	void freeAxisParams();
 
 	/// <summary>
 	/// 获取模型的面数量
