@@ -62,6 +62,19 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 		up.z = upElement->FloatAttribute("z");
 	}
 
+	//背景(环境)辐射度：可选，缺省全黑。均匀环境是白炉/解析验证场景的前提。
+	if (XMLElement* backgroundElement = root->FirstChildElement("background")) {
+		const char* backgroundStr = backgroundElement->Attribute("radiance");
+		if (backgroundStr != nullptr) {
+			std::string token;
+			int index = 0;
+			std::istringstream iss(backgroundStr);
+			while (index < 3 && std::getline(iss, token, ',')) {
+				m_background[index++] = std::stof(token);
+			}
+		}
+	}
+
 	XMLElement* light = root->FirstChildElement("light");
 	while (light != nullptr) {
 		const char* materialName = light->Attribute("mtlname");
