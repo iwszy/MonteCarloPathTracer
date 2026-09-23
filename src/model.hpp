@@ -98,6 +98,12 @@ public:
 	/// <returns>对应的材质</returns>
 	const Material& getMaterial(const std::string& materialName) const { return m_materials.at(materialName); }
 	/// <summary>
+	/// 判断模型中是否存在指定名称的材质（避免 .at() 抛异常导致崩溃）
+	/// </summary>
+	/// <param name="materialName">材质名称</param>
+	/// <returns>是否存在该材质</returns>
+	bool hasMaterial(const std::string& materialName) const { return m_materials.find(materialName) != m_materials.end(); }
+	/// <summary>
 	/// 将指定材质设置为光源类型
 	/// </summary>
 	/// <param name="materialName">材质名称</param>

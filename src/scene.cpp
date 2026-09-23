@@ -18,8 +18,20 @@ Scene::~Scene() {
 
 Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	XMLDocument doc;
-	doc.LoadFile(filepath.c_str());
+	if (doc.LoadFile(filepath.c_str()) != XML_SUCCESS) {
+		std::cerr << "Error: Could not open xml file " << filepath << "\n";
+		return nullptr;
+	}
 	XMLElement* root = doc.RootElement();
+	if (root == nullptr) {
+		std::cerr << "Error: xml file has no root element\n";
+		return nullptr;
+	}
+	if (model->getFaceNum() == 0) {
+		//模型为空通常意味着 obj 路径写错或文件打不开；继续执行会在取材质时抛异常
+		std::cerr << "Error: model has no face, please check the obj path\n";
+		return nullptr;
+	}
 	XMLElement* cameraElement = root->FirstChildElement("camera");
 	if (!cameraElement) {
 		std::cerr << "Error: Not found camera config\n";
@@ -52,12 +64,20 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	while (light != nullptr) {
 		const char* materialName = light->Attribute("mtlname");
 		const char* radianceStr = light->Attribute("radiance");
+		if (materialName == nullptr || radianceStr == nullptr) {
+			std::cerr << "Error: light element needs both mtlname and radiance\n";
+			return nullptr;
+		}
 		glm::vec3 radiance;
 		std::string token;
 		int index = 0;
 		std::istringstream iss(radianceStr);
 		while (std::getline(iss, token, ',')) {
 			radiance[index++] = std::stof(token);
+		}
+		if (!model->hasMaterial(materialName)) {
+			std::cerr << "Error: light material not found in model: " << materialName << "\n";
+			return nullptr;
 		}
 		const Material& lightMaterial = model->getMaterial(materialName);
 		if (glm::dot(lightMaterial.diffuse, glm::vec3(1)) > EPSILON) {
