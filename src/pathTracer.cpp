@@ -5,6 +5,33 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.hpp"
 #include <thread>
+namespace {
+	/// <summary>
+	/// ACES 电影级色调映射（Narkowicz 拟合）：把 HDR 亮度压到 [0,1]，高光平滑过渡不过曝
+	/// </summary>
+	glm::vec3 tonemapACES(const glm::vec3& x) {
+		const float a = 2.51f, b = 0.03f, c = 2.43f, d = 0.59f, e = 0.14f;
+		return glm::clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.f, 1.f);
+	}
+
+	/// <summary>
+	/// 线性颜色 -> sRGB 编码。8bit 图片必须做这一步，否则中间调整体偏暗
+	/// </summary>
+	glm::vec3 linearToSRGB(const glm::vec3& c) {
+		glm::vec3 clamped = glm::max(c, glm::vec3(0));
+		glm::vec3 lo = clamped * 12.92f;
+		glm::vec3 hi = 1.055f * glm::pow(clamped, glm::vec3(1.f / 2.4f)) - 0.055f;
+		return glm::mix(hi, lo, glm::lessThan(clamped, glm::vec3(0.0031308f)));
+	}
+
+	/// <summary>
+	/// [0,1] 浮点 -> 8bit（四舍五入）
+	/// </summary>
+	unsigned char toByte(float v) {
+		return static_cast<unsigned char>(glm::clamp(v, 0.f, 1.f) * 255.f + 0.5f);
+	}
+}
+
 
 PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_scene = scene;
@@ -13,6 +40,9 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_spp = 16;
 	int pixelNum = camera->getWidth() * camera->getHeight();
 	m_image = new unsigned char[pixelNum * 4];
+	//线性 HDR 累加缓冲，出图时再做曝光与色调映射
+	m_hdrImage = new float[static_cast<size_t>(pixelNum) * 3]();
+	m_exposure = camera->getExposure();
 	for (int i = 0; i < pixelNum; i++) {
 		int index = i * 4;
 		m_image[index] = 0;
