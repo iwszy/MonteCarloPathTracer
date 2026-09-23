@@ -50,6 +50,8 @@ public:
 	/// </summary>
 	/// <returns>背景颜色</returns>
 	glm::vec3 getBackground() const { return m_background; }
+	/// 色调曲线：0=线性截断(作业参考图管线) 1=ACES 2=Reinhard
+	int getTonemap() const { return m_tonemap; }
 	/// <summary>
 	/// 获取场景中的光源数组
 	/// </summary>
@@ -73,4 +75,5 @@ private:
 	/// 背景颜色
 	/// </summary>
 	glm::vec3 m_background;
+	int m_tonemap = 1;
 };

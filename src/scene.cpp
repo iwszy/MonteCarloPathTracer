@@ -42,6 +42,22 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	float fov = cameraElement->FloatAttribute("fovy");
 	//相机曝光：可选属性，缺省用默认值（不同场景参考图的曝光本来就不同，这里允许逐场景指定）
 	float exposure = cameraElement->FloatAttribute("exposure", DEFAULT_EXPOSURE);
+	//色调曲线：默认 ACES；作业参考图是线性截断管线，对应场景在 xml 里写 tonemap="linear"
+	m_tonemap = 1;
+	if (const char* tonemapStr = cameraElement->Attribute("tonemap")) {
+		std::string tm(tonemapStr);
+		if (tm == "linear") m_tonemap = 0;
+		else if (tm == "reinhard") m_tonemap = 2;
+	}
+	//色调曲线：默认 ACES；作业参考图是不做色调映射、直接线性截断的管线，
+	//对应场景在 xml 里写 tonemap="linear" 即可对齐参考图。
+	m_tonemap = 1;
+	if (const char* tonemapStr = cameraElement->Attribute("tonemap")) {
+		std::string tm(tonemapStr);
+		if (tm == "linear") m_tonemap = 0;
+		else if (tm == "reinhard") m_tonemap = 2;
+	}
+
 	glm::vec3 eye, lookAt, up;
 
 	if (XMLElement* eyeElement = cameraElement->FirstChildElement("eye")) {

@@ -37,7 +37,7 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_scene = scene;
 	m_camera = camera;
 	m_sampler = new Sampler();
-	m_spp = 256;
+	m_spp = 16;
 	int pixelNum = camera->getWidth() * camera->getHeight();
 	m_image = new unsigned char[pixelNum * 4];
 	//线性 HDR 累加缓冲，出图时再做曝光与色调映射
@@ -70,7 +70,14 @@ void PathTracer::developImage() const {
 			hdr = glm::vec3(0);
 		}
 		hdr = glm::clamp(hdr, glm::vec3(0), glm::vec3(1e30f));
-		glm::vec3 mapped = linearToSRGB(tonemapACES(hdr * m_exposure));
+		glm::vec3 exposed = hdr * m_exposure;
+		glm::vec3 mapped;
+		switch (m_scene->getTonemap()) {
+		case 0: mapped = glm::clamp(exposed, 0.f, 1.f); break;
+		case 2: mapped = exposed / (1.f + exposed); break;
+		default: mapped = tonemapACES(exposed); break;
+		}
+		mapped = linearToSRGB(mapped);
 		const int index = i * 4;
 		m_image[index] = toByte(mapped[0]);
 		m_image[index + 1] = toByte(mapped[1]);
