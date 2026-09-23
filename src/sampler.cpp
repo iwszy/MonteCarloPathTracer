@@ -40,8 +40,11 @@ uint32_t Sampler::sobol(uint32_t index, int dim) {
     return result;
 }
 
+// 固定默认种子：同一场景、同一 spp 的渲染必须可复现。
+// 此前这里用 std::random_device，导致每次运行的噪声实现都不同，A/B 对比与回归测试无法逐像素比较。
+// 需要换一组噪声实现时，改这个常量即可。
 uint32_t Sampler::getGlobalSeed() {
-    static uint32_t globalSeed = std::random_device{}();
+    static uint32_t globalSeed = 0u;
     return globalSeed;
 }
 
