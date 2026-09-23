@@ -82,7 +82,7 @@ Thumbs.db
 desktop.ini
 
 # 解析验证/镜面测试场景：这几个 obj 是 cornell-box.obj 的副本或派生，避免重复入库
-models/cornell_mirror/cornell_mirror.obj
+models/cornell_mirror/cornell-mirror.obj
 models/analytic_rho0/analytic_rho0.obj
 # analytic_spheres.obj 是本仓库自行生成的解析测试网格（约 0.7 MB），需要入库以保持场景自包含
 !models/analytic_spheres/analytic_spheres.obj
