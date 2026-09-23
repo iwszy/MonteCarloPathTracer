@@ -8,23 +8,16 @@ bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfV
 		pdf = localWi.y * INV_PI;
 		brdfVal = material->getDiffuse(uv) * INV_PI;
 	}else if (material->type == SPECULAR) {
-		float hDotN = glm::dot(glm::normalize(wi - wo), normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
+		glm::vec3 h = glm::normalize(wi - wo);
+		float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 		float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-		glm::vec3 f = schlickFresnel(material->specular, iDotN);
-		pdf = d * hDotN / (glm::dot(glm::normalize(wi - wo), wi) * 4);
+		//菲涅尔的自变量必须与 specularReflect 完全一致（半角向量余弦），否则两种采样策略
+		//估计的是不同的 BRDF，且差异随颜色与角度变化，MIS 加权在数学上不成立
+		glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
+		pdf = d * hDotN / (glm::dot(h, wi) * 4);
 		brdfVal = d * f * v ;
 	}else {
-		float rnd = sampler->get1D(5);
-		if (rnd < material->diffuseRate) {
-			pdf = localWi.y * INV_PI * material->diffuseRate;
-			brdfVal = material->getDiffuse(uv) * INV_PI;
-		} else {
-			float hDotN = glm::dot(glm::normalize(wi - wo), normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
-			float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-			glm::vec3 f = schlickFresnel(glm::mix(glm::vec3(0.04f), material->specular, 0.5), oDotN);
-			pdf = d * hDotN / (glm::dot(glm::normalize(wi - wo), wi) * 4) * (1 - material->diffuseRate);
-			brdfVal = d * f * v;
-		}
+		brdfVal = evaluateMixed(wo, wi, pdf);
 	}
 	return pdf >= 0.f;
 }
@@ -37,17 +30,21 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 		return specularReflect(wo, wi, pdf, sampler);
 	}
 	if (material->type == DIFFUSE_SPECULAR) {
+		//按权重随机选择一个 lobe 采样出射方向（只是采样手段，不影响被估计的积分）
 		float rnd = sampler->get1D(5);
-		glm::vec3 color;
-		//若既存在漫反射又存在镜面反射，则随机一个数根据其是否小于漫反射率决定进行漫反射还是镜面反射
+		float lobePDF;
 		if (rnd < material->diffuseRate) {
-			color = diffuseReflect(wi, pdf, sampler);
-			pdf *= material->diffuseRate;
+			diffuseReflect(wi, lobePDF, sampler);
 		}else {
-			color = specularReflect(wo, wi, pdf, sampler);
-			pdf *= (1 - material->diffuseRate);
+			specularReflect(wo, wi, lobePDF, sampler);
 		}
-		return color;
+		if (lobePDF <= 0.f) {
+			//无效采样（例如反射方向落在表面以下）
+			pdf = 0.f;
+			return glm::vec3(0);
+		}
+		//再用完整 BRDF 与边缘密度求值，保证与光源采样路径估计同一个积分
+		return evaluateMixed(wo, wi, pdf);
 	}
 	return glm::vec3(0);
 }
@@ -67,12 +64,32 @@ glm::vec3 Intersection::specularReflect(glm::vec3 wo, glm::vec3& wi, float& pdf,
 	glm::vec3 h = glm::vec3(sinTheta * glm::cos(phi), cosTheta, sinTheta * glm::sin(phi));
 	h = m_transform * h;
 	wi = glm::normalize(glm::reflect(wo, h));
+	//反射方向落在表面以下时该采样无效：BRDF 为 0，返回 PDF=0 让调用方跳过该样本
+	//（否则 dot(normal, wi) < 0 会产生负的间接光贡献，被 clamp 丢弃后表现为系统性偏亮）
+	if (glm::dot(wi, normal) <= 0.f) {
+		pdf = 0.f;
+		return glm::vec3(0);
+	}
 	//微表面模型BRDF: fr = D * F * G 
 	float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 	float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-	glm::vec3 f = schlickFresnel(material->specular, iDotN);
+	//与 brdf() 求值路径保持一致：菲涅尔自变量取半角向量余弦
+	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
 	pdf = d * hDotN / (glm::dot(wi, h) * 4);
 	return d * f * v;
+}
+
+glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) const {
+	glm::vec3 localWi = m_transposeTransform * wi;
+	glm::vec3 diffuseVal = material->getDiffuse(uv) * INV_PI;
+	glm::vec3 h = glm::normalize(wi - wo);
+	float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
+	float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
+	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
+	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
+	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
+	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
+	return diffuseVal + d * f * v;
 }
 
 void Intersection::setNormal(glm::vec3 n) {

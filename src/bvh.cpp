@@ -159,7 +159,13 @@ bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersecti
 	intersection.point = ray.at(t);
 	intersection.t = t;
 	glm::vec3* normals = m_model->getNormal(id);
-	intersection.setNormal(glm::normalize(alpha * normals[0] + beta * normals[1] + gamma * normals[2]));
+	glm::vec3 shadingNormal = glm::normalize(alpha * normals[0] + beta * normals[1] + gamma * normals[2]);
+	//双面材质：把着色法线翻到光线射来的一侧。否则背面交点处光源采样会被 cos<=0 剔除，
+	//而 BSDF 采样仍会向着"物体内部"的半球继续追踪，两种策略估计的积分不一致。
+	if (glm::dot(shadingNormal, ray.direction) > 0.f) {
+		shadingNormal = -shadingNormal;
+	}
+	intersection.setNormal(shadingNormal);
 	intersection.material = &m_model->getMaterial(id);
 	if (intersection.material->texture != nullptr) {
 		glm::vec2* uvs = m_model->getUV(id);

@@ -85,6 +85,18 @@ private:
 	/// <param name="sampler">采样器</param>
 	/// <returns>BRDF值</returns>
 	glm::vec3 specularReflect(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* sampler);
+
+	/// <summary>
+	/// 求"漫反射 + 镜面反射"混合材质的完整 BRDF 值与采样 PDF
+	/// BRDF 取两项之和（Phong 模型两项同时存在），PDF 取整个采样过程的边缘密度
+	/// （两个 lobe 的密度按权重求和）。求值路径与采样路径必须共用此函数，
+	/// 否则光源采样与 BSDF 采样估计的积分对象不一致，MIS 加权在数学上不成立。
+	/// </summary>
+	/// <param name="wo">入射方向</param>
+	/// <param name="wi">出射方向</param>
+	/// <param name="pdf">边缘采样 PDF</param>
+	/// <returns>完整 BRDF 值</returns>
+	glm::vec3 evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) const;
 	/// <summary>
 	/// 根据GGX分布计算微表面法线分布项
 	/// </summary>

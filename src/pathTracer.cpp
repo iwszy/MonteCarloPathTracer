@@ -67,9 +67,11 @@ void PathTracer::renderPixel(int x, int y) {
 				color += tmpColor;
 			}
 			color /= m_spp;
-			m_image[index++] = static_cast<unsigned char>(color[0] * 255);
-			m_image[index++] = static_cast<unsigned char>(color[1] * 255);
-			m_image[index++] = static_cast<unsigned char>(color[2] * 255);
+			//全局曝光：物理辐射亮度映射到显示范围（替代原先分散在两个策略里的放大魔数）
+			color *= EXPOSURE;
+			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[0], 0.f, 1.f) * 255);
+			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[1], 0.f, 1.f) * 255);
+			m_image[index++] = static_cast<unsigned char>(glm::clamp(color[2], 0.f, 1.f) * 255);
 			index++;
 		}
 		index += step;
@@ -119,7 +121,7 @@ void PathTracer::bilateralFilter(int k, float sigmaD, float sigmaR) {
 	delete[] image;
 }
 
-glm::vec3 PathTracer::trace(Ray ray, int depth) {
+glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 	if (depth > MAX_DEPTH) {
 		return m_scene->getBackground();
 	}
@@ -129,8 +131,17 @@ glm::vec3 PathTracer::trace(Ray ray, int depth) {
 		return m_scene->getBackground();
 	}
 	if (intersection.material->type == LIGHT) {
-		//光源颜色普遍较暗，故需要放大光源颜色
-		return intersection.material->radiance * 40.f;
+		//相机的第一条光线直接看到光源：光源采样策略无法产生该样本，MIS 权重为 1
+		if (depth == 0) {
+			return intersection.material->radiance;
+		}
+		//BSDF 采样策略命中光源：与光源采样策略做幂启发式 MIS 加权后计入
+		float lightPDF = sampleLightPdf(ray, intersection);
+		//单面光源背面不发光（光源采样策略同样会剔除），此时几何项使 PDF 为 0
+		if (lightPDF <= 0.f) {
+			return glm::vec3(0);
+		}
+		return intersection.material->radiance * powerHeuristic(bsdfPDF, lightPDF);
 	}
 	m_sampler->shuffle();
 
@@ -144,7 +155,7 @@ glm::vec3 PathTracer::trace(Ray ray, int depth) {
 		return direct;
 	}
 	Ray newRay(intersection.point + intersection.normal * 1e-3f, wi);
-	glm::vec3 radiance = trace(newRay, depth + 1);
+	glm::vec3 radiance = trace(newRay, depth + 1, brdfPDF);
 	glm::vec3 indirect = brdf * radiance * glm::dot(intersection.normal, wi) / brdfPDF;
 	return direct + indirect;
 }
@@ -193,12 +204,21 @@ glm::vec3 PathTracer::sampleDirectLight(glm::vec3 wo, Intersection& intersection
 		
 		lightPDF = glm::dot(toLight, toLight) / (light->getArea() * cosLightTheta);
 		misWeight = powerHeuristic(lightPDF, brdfPDF);
-		// 根据渲染方程计算直接光照
-		// 此处由于模型的范围跨度较大，面与面之间的距离很大，导致颜色会被稀释的很小，故需要放大颜色值
-		direct += misWeight * brdf * radiance * cosTheta * 800.f / lightPDF;
+		direct += misWeight * brdf * radiance * cosTheta / lightPDF;
 	}
 	
 	return direct;
+}
+
+float PathTracer::sampleLightPdf(const Ray& ray, const Intersection& intersection) const {
+	Light* light = m_scene->getLight(intersection.material->name);
+	float cosLightTheta = light->getCos(intersection.id, -ray.direction);
+	if (cosLightTheta <= 0.f) {
+		return 0.f;
+	}
+	//与 sampleDirectLight 中同一套面积到立体角的变换
+	glm::vec3 toLight = intersection.point - ray.origin;
+	return glm::dot(toLight, toLight) / (light->getArea() * cosLightTheta);
 }
 
 float PathTracer::powerHeuristic(float pdf1, float pdf2) {
