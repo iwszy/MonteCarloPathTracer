@@ -2,13 +2,14 @@
 
 #include <glm/glm.hpp>
 #include "ray.hpp"
+#include "constant.hpp"
 
 /// <summary>
 /// 相机类，包括相机的基础功能并提供生成射线的功能
 /// </summary>
 class Camera {
 public:
-	Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height);
+	Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height, float exposure = DEFAULT_EXPOSURE);
 
 	/// <summary>
 	/// 根据所给像素位置生成射线
@@ -28,11 +29,22 @@ public:
 	/// </summary>
 	/// <returns>成像平面的高度</returns>
 	int getHeight() const { return m_height; }
+	/// <summary>
+	/// 获取相机曝光系数（可由 xml 的 camera 元素 exposure 属性指定）
+	/// </summary>
+	/// <returns>曝光系数</returns>
+	float getExposure() const { return m_exposure; }
 private:
+
 	/// <summary>
 	/// 相机位置
 	/// </summary>
 	glm::vec3 m_eye;
+
+	/// <summary>
+	/// 曝光系数（由 xml 的 camera 元素指定，或取默认值）
+	/// </summary>
+	float m_exposure;
 	/// <summary>
 	/// 相机坐标系的基向量
 	/// </summary>

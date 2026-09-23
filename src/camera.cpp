@@ -1,7 +1,8 @@
 #include "camera.hpp"
 
-Camera::Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height) {
+Camera::Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height, float exposure) {
 	m_eye = eye;
+	m_exposure = exposure;
 	m_width = width;
 	m_height = height;
 	m_distance = glm::abs((lookAt - eye).z);

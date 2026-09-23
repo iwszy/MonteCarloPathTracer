@@ -40,6 +40,8 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	int width = cameraElement->IntAttribute("width");
 	int height = cameraElement->IntAttribute("height");
 	float fov = cameraElement->FloatAttribute("fovy");
+	//相机曝光：可选属性，缺省用默认值（不同场景参考图的曝光本来就不同，这里允许逐场景指定）
+	float exposure = cameraElement->FloatAttribute("exposure", DEFAULT_EXPOSURE);
 	glm::vec3 eye, lookAt, up;
 
 	if (XMLElement* eyeElement = cameraElement->FirstChildElement("eye")) {
@@ -89,7 +91,7 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 		model->setLight(materialName, radiance);
 		light = light->NextSiblingElement("light");
 	}
-	return new Camera(eye, lookAt, up, fov, width, height);
+	return new Camera(eye, lookAt, up, fov, width, height, exposure);
 }
 
 void Scene::buildBVH(Model* model) {

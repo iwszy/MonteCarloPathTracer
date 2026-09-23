@@ -171,6 +171,14 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 		}
 		return intersection.material->radiance * powerHeuristic(bsdfPDF, lightPDF);
 	}
+
+	//单面材质：从背面射入的交点不参与散射。本工程场景由无厚度的墙面/挡板构成，
+	//背面本就不该被照亮；若把法线翻到来向一侧，等于让光从背板漏进封闭空间
+	//（bathroom2 中 Wood/Ceramic 等大面积挡板会因此整体偏亮 2.4~2.7 倍）。
+	//两种采样策略都在这里返回，NEE 与 BSDF 采样对同一交点仍然一致。
+	if (glm::dot(intersection.normal, ray.direction) > 0.f) {
+		return glm::vec3(0);
+	}
 	m_sampler->shuffle();
 
 	glm::vec3 direct = sampleDirectLight(ray.direction, intersection);

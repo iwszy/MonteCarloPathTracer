@@ -11,12 +11,6 @@
 /// </summary>
 constexpr int MAX_DEPTH = 8;
 
-/// <summary>
-/// 默认曝光系数：物理辐射亮度先乘曝光，再经 ACES 色调映射与 sRGB 编码写成 8bit 图片
-/// （原先分散在 NEE/BSDF 两条路径里的 800 与 40 两个魔数已删除，这里只留一个统一曝光量）
-/// 可在运行时用 PathTracer::setExposure() 调整
-/// </summary>
-constexpr float DEFAULT_EXPOSURE = 300.f;
 
 /// <summary>
 /// 路径追踪核心类，实现路径追踪

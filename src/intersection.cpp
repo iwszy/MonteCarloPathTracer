@@ -89,7 +89,10 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
 	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
-	return diffuseVal + d * f * v;
+	//能量守恒的漫反射/镜面组合：只有没被镜面反射掉的那部分能量才进入漫反射层
+	//（标准 PBR 写法 f = (1-F)·Kd/π + F·D·V）。原先直接相加 Kd/π + F·D·V，
+	//在 Kd+Ks>1 的材质上每个反弹都放大能量，封闭场景里逐次累积会导致整幅图明显偏亮。
+	return (glm::vec3(1) - f) * diffuseVal + d * f * v;
 }
 
 void Intersection::setNormal(glm::vec3 n) {

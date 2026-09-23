@@ -61,7 +61,11 @@ MonteCar.*/
 
 # 超大场景资源：bathroom2 场景约 350 MB（obj 124 MB + Maya 源文件 108 MB + 拆分网格 119 MB），
 # 超过托管仓库的合理体积，不纳入版本管理；渲染前从课程资源重新拷贝即可。
-models/bathroom2/
+# 但场景描述（xml）与材质（mtl）很小，需要纳入版本管理
+models/bathroom2/*.obj
+models/bathroom2/*.mb
+models/bathroom2/models/
+models/bathroom2/textures/
 
 # Maya 源文件（渲染器不读取，仅作建模源）
 *.mb

@@ -1,0 +1,111 @@
+newmtl Wall
+Kd 0.578596 0.578596 0.578596
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl Light
+Kd 0 0 0
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl quad1
+Kd 1 1 1
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl Mirror
+Kd 0 0 0
+Ks 1 1 1
+Tr 1 1 1
+Ns 10000
+Ni 1
+newmtl StainlessRough
+Kd 0.578596 0.578596 0.578596
+Ks 0.578596 0.578596 0.578596
+Tr 1 1 1
+Ns 90
+Ni 1
+newmtl Towel
+Kd 0.578596 0.578596 0.578596
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl BlackWoodLacquer
+Kd 0.05 0.05 0.05
+Ks 0.05 0.05 0.05
+Tr 1 1 1
+Ns 9
+Ni 1
+newmtl Wood
+Kd 0 0 0
+Ks 0 0 0
+Tr 1 1 1
+Ns 9
+Ni 1
+map_Kd textures/WoodPanel.png
+newmtl WoodFloor
+Kd 0 0 0
+Ks 0 0 0
+Tr 1 1 1
+Ns 9
+Ni 1
+map_Kd textures/WoodFloor.jpg
+newmtl Label
+Kd 0.5 0.5 0.5
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+map_Kd textures/Label.png
+newmtl RoughGlass
+Kd 0.578596 0.578596 0.578596
+Ks 0.578596 0.578596 0.578596
+Tr 1 1 1
+Ns 9
+Ni 1
+newmtl Plastic
+Kd 0.578596 0.578596 0.578596
+Ks 0.578596 0.578596 0.578596
+Tr 1 1 1
+Ns 9
+Ni 1
+newmtl DarkPlastic
+Kd 0.05 0.05 0.05
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl Bin
+Kd 0 0 0
+Ks 1 1 1
+Tr 1 1 1
+Ns 10000
+Ni 1
+newmtl WallRight
+Kd 0.578596 0.578596 0.578596
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl DarkBorder
+Kd 0.05 0.05 0.05
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl Trims
+Kd 0.578596 0.578596 0.578596
+Ks 0 0 0
+Tr 1 1 1
+Ns 1
+Ni 1
+newmtl Ceramic
+Kd 0.578596 0.578596 0.578596
+Ks 0.578596 0.578596 0.578596
+Tr 1 1 1
+Ns 9
+Ni 1
