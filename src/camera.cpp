@@ -5,7 +5,13 @@ Camera::Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int wid
 	m_exposure = exposure;
 	m_width = width;
 	m_height = height;
-	m_distance = glm::abs((lookAt - eye).z);
+	//相机看向非 z 轴时 |dz| 可能为 0，会让射线方向 normalize(0) 得到 NaN，
+	//进而使 BVH 包围盒比较全部失效、遍历退化成指数级假死。这里改用真实距离，
+	//且因为 m_top 与方向里的 m_distance 同时缩放，射线本身不会改变。
+	m_distance = glm::length(lookAt - eye);
+	if (m_distance < 1e-6f) {
+		m_distance = 1.f;
+	}
 	//tan(fov/2) = t / |n|, r / t = width / height
 	m_top = glm::tan(glm::radians(fov) / 2) * m_distance;
 	m_topDivHeightMul2 = 2 * m_top / m_height;
