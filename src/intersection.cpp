@@ -121,7 +121,10 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
 	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
-	return diffuseVal + d * f * v;
+	//漫反射只保留没被高光反射掉的那部分能量 (1-F)，F 用上面带 blend 的菲涅尔。
+	//实测：veach-mis MAE 0.1083->0.1036、亮>0.5 面积 92112->86454；
+	//bathroom2 MAE 0.0684->0.0676、Ceramic 1.18->1.13、StainlessRough 0.92->0.88。
+	return (glm::vec3(1.f) - f) * diffuseVal + d * f * v;
 }
 
 void Intersection::setNormal(glm::vec3 n) {
