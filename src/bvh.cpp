@@ -26,57 +26,109 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 		}
 	} else {
 		//使用表面积启发式（SAH）构建BVH，判断10条划分轴
+		//单遍分箱 SAH：与原先“每个候选平面各做一次 std::partition + 逐元素重算包围盒”数学等价
+		//（同样的 11 个候选平面、同样的代价公式与比较顺序），但把每轴 10 次 O(n) 划分 + 30 次重算包围盒
+		//换成 1 次 O(n) 归箱 + 每轴两次 O(11) 前后缀扫描，BVH 构建耗时约降一个数量级。
+		constexpr int BIN_NUM = 11;
 		float* leftMin = new float[3], * leftMax = new float[3], * rightMin = new float[3], * rightMax = new float[3];
 		int mid = 0, finalDim = 0, isSame = 1;
 		float minCost = std::numeric_limits<float>::max();
-		for (int dim = 0; dim < 3; dim++) {
-			auto maxID = std::max_element(triangles + left, triangles + right + 1, [&](int a, int b) {
-				return m_model->getAxisCenter(a, dim) < m_model->getAxisCenter(b, dim);
-				});
-			auto minID = std::min_element(triangles + left, triangles + right + 1, [&](int a, int b) {
-				return m_model->getAxisCenter(a, dim) < m_model->getAxisCenter(b, dim);
-				});
-			float step = (m_model->getAxisCenter(*maxID, dim) - m_model->getAxisCenter(*minID, dim)) / 11;
-			float axis = m_model->getAxisCenter(*minID, dim) + step;
-			if (glm::abs(step) > EPSILON) {
-				isSame = 0;
-			}else {
-				//若在当前轴向上所有三角形的中心位置完全相同则跳过该轴判断
-				//因为若进行后续判断只会得到其中1侧三角形数量为0的结果，此结果我们认定为一定不是最优结果
-				//此外，若是承认此结果可能会导致1侧子节点与当前子节点处理相同的三角面从而无限递归
-				continue;
-			}
-			for (int i = 0; i < 10; i++) {
-				float tmpLeftMin[3], tmpLeftMax[3], tmpRightMin[3], tmpRightMax[3];
-				auto id = std::partition(triangles + left, triangles + right + 1, [&](int a) {
-					return m_model->getAxisCenter(a, dim) - axis <= EPSILON;
-					});
-				int index = static_cast<int>(std::distance(triangles + left, id)) - 1 + left;
-				int leftNum = index - left + 1, rightNum = right - index;
-				calculateBoundingBox(triangles, left, index, tmpLeftMin, tmpLeftMax);
-				calculateBoundingBox(triangles, index + 1, right, tmpRightMin, tmpRightMax);
-				float leftCost = leftNum == 0 ? 0 : calculateSurface(tmpLeftMin, tmpLeftMax) * leftNum;
-				float rightCost = rightNum == 0 ? 0 : calculateSurface(tmpRightMin, tmpRightMax) * rightNum;
-				float cost = leftCost + rightCost;
-				if (cost < minCost) {
-					leftMin[0] = tmpLeftMin[0]; leftMin[1] = tmpLeftMin[1]; leftMin[2] = tmpLeftMin[2];
-					leftMax[0] = tmpLeftMax[0]; leftMax[1] = tmpLeftMax[1]; leftMax[2] = tmpLeftMax[2];
-					rightMin[0] = tmpRightMin[0]; rightMin[1] = tmpRightMin[1]; rightMin[2] = tmpRightMin[2];
-					rightMax[0] = tmpRightMax[0]; rightMax[1] = tmpRightMax[1]; rightMax[2] = tmpRightMax[2];
-					minCost = cost;
-					mid = index;
-					finalDim = dim;
-				}
-				axis += step;
+		float minCenter[3], maxCenter[3], step[3];
+		for (int dim = 0; dim < 3; dim++) { minCenter[dim] = std::numeric_limits<float>::max(); maxCenter[dim] = std::numeric_limits<float>::lowest(); }
+		//一趟扫描同时取三轴中心的最小/最大值（与 std::min_element / max_element 结果一致）
+		for (int i = left; i <= right; i++) {
+			int t = triangles[i];
+			for (int dim = 0; dim < 3; dim++) {
+				float c = m_model->getAxisCenter(t, dim);
+				if (c < minCenter[dim]) minCenter[dim] = c;
+				if (c > maxCenter[dim]) maxCenter[dim] = c;
 			}
 		}
+		for (int dim = 0; dim < 3; dim++) {
+			step[dim] = (maxCenter[dim] - minCenter[dim]) / BIN_NUM;
+			if (glm::abs(step[dim]) > EPSILON) isSame = 0;
+		}
 		if (isSame) {
-			//若所有轴向上所有三角面的中心位置均相同，则会导致mid=0的情况
-			//为避免此情况，此处强制进行均匀划分，并设置划分轴为x轴
+			//当前范围内所有三角形的中心位置完全相同：分箱无法分开（代价恒为 0，mid 会停在 0）
+			//因此强制按中位数切分，并固定用 x 轴，避免无限递归
 			mid = (left + right) / 2;
 			finalDim = 0;
 			calculateBoundingBox(triangles, left, mid, leftMin, leftMax);
 			calculateBoundingBox(triangles, mid + 1, right, rightMin, rightMax);
+		} else {
+			float plane[3][BIN_NUM];
+			for (int dim = 0; dim < 3; dim++) {
+				plane[dim][0] = minCenter[dim];
+				for (int k = 1; k < BIN_NUM; k++) {
+					//候选平面按原先 axis += step 的方式逐步累加，连浮点累加误差一起复现，
+					//使分箱边界与老实现逐位一致
+					plane[dim][k] = plane[dim][k - 1] + step[dim];
+				}
+			}
+			int binCount[3][BIN_NUM] = {};
+			float binMin[3][BIN_NUM][3], binMax[3][BIN_NUM][3];
+			for (int dim = 0; dim < 3; dim++)
+				for (int b = 0; b < BIN_NUM; b++)
+					for (int d2 = 0; d2 < 3; d2++) {
+						binMin[dim][b][d2] = std::numeric_limits<float>::max();
+						binMax[dim][b][d2] = std::numeric_limits<float>::lowest();
+					}
+			//一次归箱遍历：按三轴各自定位箱号，并累计该箱的包围盒与计数
+			for (int i = left; i <= right; i++) {
+				int t = triangles[i];
+				for (int dim = 0; dim < 3; dim++) {
+					if (glm::abs(step[dim]) <= EPSILON) continue;
+					float c = m_model->getAxisCenter(t, dim);
+					int bin = 0;
+					for (int k = 1; k < BIN_NUM; k++) {
+						if (c - plane[dim][k] > EPSILON) bin = k; else break;
+					}
+					binCount[dim][bin]++;
+					for (int d2 = 0; d2 < 3; d2++) {
+						binMin[dim][bin][d2] = glm::min(binMin[dim][bin][d2], m_model->getAxisMinimum(t, d2));
+						binMax[dim][bin][d2] = glm::max(binMax[dim][bin][d2], m_model->getAxisMaximum(t, d2));
+					}
+				}
+			}
+			for (int dim = 0; dim < 3; dim++) {
+				if (glm::abs(step[dim]) <= EPSILON) continue;
+				//后缀：箱 i..10 的并集，即候选平面 i 右侧；前缀：箱 0..i-1，即左侧。
+				//左右两侧的包围盒都是同一批面片包围盒的并集，因此与原实现逐位相同。
+				float sufMin[BIN_NUM + 1][3], sufMax[BIN_NUM + 1][3];
+				int sufNum[BIN_NUM + 1];
+				for (int d2 = 0; d2 < 3; d2++) { sufMin[BIN_NUM][d2] = std::numeric_limits<float>::max(); sufMax[BIN_NUM][d2] = std::numeric_limits<float>::lowest(); }
+				sufNum[BIN_NUM] = 0;
+				for (int b = BIN_NUM - 1; b >= 0; b--) {
+					sufNum[b] = sufNum[b + 1] + binCount[dim][b];
+					for (int d2 = 0; d2 < 3; d2++) {
+						sufMin[b][d2] = glm::min(sufMin[b + 1][d2], binMin[dim][b][d2]);
+						sufMax[b][d2] = glm::max(sufMax[b + 1][d2], binMax[dim][b][d2]);
+					}
+				}
+				float preMin[3], preMax[3];
+				for (int d2 = 0; d2 < 3; d2++) { preMin[d2] = std::numeric_limits<float>::max(); preMax[d2] = std::numeric_limits<float>::lowest(); }
+				int preNum = 0;
+				for (int i = 1; i < BIN_NUM; i++) {
+					preNum += binCount[dim][i - 1];
+					for (int d2 = 0; d2 < 3; d2++) {
+						preMin[d2] = glm::min(preMin[d2], binMin[dim][i - 1][d2]);
+						preMax[d2] = glm::max(preMax[d2], binMax[dim][i - 1][d2]);
+					}
+					int rightNum = (right - left + 1) - preNum;
+					float leftCost = preNum == 0 ? 0 : calculateSurface(preMin, preMax) * preNum;
+					float rightCost = rightNum == 0 ? 0 : calculateSurface(sufMin[i], sufMax[i]) * rightNum;
+					float cost = leftCost + rightCost;
+					if (cost < minCost) {
+						for (int d2 = 0; d2 < 3; d2++) {
+							leftMin[d2] = preMin[d2]; leftMax[d2] = preMax[d2];
+							rightMin[d2] = sufMin[i][d2]; rightMax[d2] = sufMax[i][d2];
+						}
+						minCost = cost;
+						mid = left + preNum - 1;
+						finalDim = dim;
+					}
+				}
+			}
 		}
 		std::nth_element(triangles + left, triangles + mid, triangles + right + 1,
 		[&](int a, int b) {
