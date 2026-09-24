@@ -111,7 +111,11 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	//这里让 Ks 只作为高光的“颜色/强度”，菲涅尔用 4% 介电基底；
 	//若像金属度工作流那样把 Ks 直接当 F0，高光能量会高出一个数量级，
 	//veach-mis 的条面会被白色高光冲成灰白（实测条面亮度 0.556 vs 参考 0.290）。
-	glm::vec3 f = material->specular * schlickFresnel(glm::vec3(0.04f), glm::dot(wi, h));
+	//菲涅尔 F0 = Ks，与纯镜面分支(specularReflect)保持同一约定：
+	//作业 mtl 的 Ks 是“高光颜色/镜面反射率”，不是介电基底的 4%——
+	//此前混合分支写成 Ks*F(0.04) 会让同一材质在 Kd=0 与 Kd!=0 时高光差 25 倍，
+	//表现为“把 Kd 从 0 改成非 0，光斑亮度骤减”（veach-mis 亮>0.9 从 51382 掉到 221）。
+	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
 	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
