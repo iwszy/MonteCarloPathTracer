@@ -180,7 +180,7 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 
 	//计算间接光照，通过BRDF采样新方向
 	glm::vec3 wi;
-	float brdfPDF;
+	float brdfPDF = 0.f;
 	glm::vec3 brdf = intersection.brdf(ray.direction, wi, brdfPDF, m_sampler);
 	if (brdfPDF < EPSILON) {
 		return direct;

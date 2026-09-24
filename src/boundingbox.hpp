@@ -36,7 +36,7 @@ public:
 		for (int i = 0; i < 3; i++) {
 			//射线方向与该轴平行时，只需判断起点在该轴上是否位于包围盒之外
 			if (glm::abs(ray.direction[i]) < EPSILON) {
-				if (ray.origin[i] < min[i] && ray.origin[i] > max[i]) {
+				if (ray.origin[i] < min[i] || ray.origin[i] > max[i]) {
 					return false;
 				}
 				continue;
