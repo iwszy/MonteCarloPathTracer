@@ -16,47 +16,20 @@ constexpr int MAX_TRIANGLE = 10;
 /// </summary>
 struct BVHNode {
 	/// <summary>
-	/// 节点的包围盒
+	/// 节点的包围盒（内联存储，遍历时无需指针跳转）
 	/// </summary>
-	std::unique_ptr<BoundingBox> bbox;
+	BoundingBox bbox;
 	/// <summary>
-	/// 节点所包含的三角形的数组，非叶子节点为空
+	/// 叶子节点所包含的三角形在 BVH 全局索引数组中的起始位置与数量；内部节点数量为 0。
+	/// 三角形索引连续存放，省掉每个叶子各一个 vector 的堆分配。
 	/// </summary>
-	std::vector<int> triangles;
+	uint32_t triangleOffset = 0;
+	uint32_t triangleCount = 0;
 	/// <summary>
-	/// 左子节点索引
+	/// 子节点索引
 	/// </summary>
-	uint32_t leftNode;
-	/// <summary>
-	/// 右子节点索引
-	/// </summary>
-	uint32_t rightNode;
-
-	BVHNode() {
-		bbox = nullptr;
-		leftNode = 0;
-		rightNode = 0;
-	}
-
-	~BVHNode() = default;
-
-	BVHNode(BVHNode&& other) noexcept
-		: bbox(std::move(other.bbox)),
-		triangles(std::move(other.triangles)),leftNode(other.leftNode),
-		rightNode(other.rightNode) {}
-
-	BVHNode& operator=(BVHNode&& other) noexcept {
-		if (this != &other) {
-			bbox = std::move(other.bbox);
-			triangles = std::move(other.triangles);
-			leftNode = other.leftNode;
-			rightNode = other.rightNode;
-		}
-		return *this;
-	}
-
-	BVHNode(const BVHNode&) = delete;
-	BVHNode& operator=(const BVHNode&) = delete;
+	uint32_t leftNode = 0;
+	uint32_t rightNode = 0;
 };
 
 /// <summary>
@@ -82,6 +55,8 @@ private:
 	/// BVH节点，以数组形式存储
 	/// </summary>
 	std::vector<BVHNode> m_nodes;
+	/// BVH 全局三角形索引数组：各叶子节点的三角形按构建顺序连续存放
+	std::vector<int> m_triangles;
 	/// <summary>
 	/// 模型类
 	/// </summary>

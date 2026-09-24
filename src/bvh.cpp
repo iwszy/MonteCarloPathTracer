@@ -7,9 +7,10 @@
 BVH::BVH(int* triangles, int n, Model* model) {
 	m_model = model;
 	//由于每个节点在构建前已经算好了包围盒，故第一个节点需在调用构建函数前单独计算
-	float* min = new float[3], * max = new float[3];
+	float min[3], max[3];
 	min[0] = std::numeric_limits<float>::max(); min[1] = min[0]; min[2] = min[0];
 	max[0] = std::numeric_limits<float>::lowest(); max[1] = max[0]; max[2] = max[0];
+	m_triangles.reserve(n);
 	calculateBoundingBox(triangles, 0, n - 1, min, max);
 	build(triangles, 0, n - 1, min, max);
 }
@@ -17,20 +18,21 @@ BVH::BVH(int* triangles, int n, Model* model) {
 void BVH::build(int* triangles, const int left, const int right, float* min, float* max) {
 	int nodeIndex = m_nodes.size();
 	m_nodes.emplace_back();
-	m_nodes[nodeIndex].bbox = std::make_unique<BoundingBox>(min, max);
+	m_nodes[nodeIndex].bbox.set(min, max);
 	if (right - left < MAX_TRIANGLE) {
 		//节点包含的三角形数量不大于阈值则作为叶子节点
-		m_nodes[nodeIndex].triangles.reserve(right - left + 1);
+		m_nodes[nodeIndex].triangleOffset = static_cast<uint32_t>(m_triangles.size());
 		for (int i = left; i <= right; i++) {
-			m_nodes[nodeIndex].triangles.emplace_back(triangles[i]);
+			m_triangles.emplace_back(triangles[i]);
 		}
+		m_nodes[nodeIndex].triangleCount = static_cast<uint32_t>(m_triangles.size()) - m_nodes[nodeIndex].triangleOffset;
 	} else {
 		//使用表面积启发式（SAH）构建BVH，判断10条划分轴
 		//单遍分箱 SAH：与原先“每个候选平面各做一次 std::partition + 逐元素重算包围盒”数学等价
 		//（同样的 11 个候选平面、同样的代价公式与比较顺序），但把每轴 10 次 O(n) 划分 + 30 次重算包围盒
 		//换成 1 次 O(n) 归箱 + 每轴两次 O(11) 前后缀扫描，BVH 构建耗时约降一个数量级。
 		constexpr int BIN_NUM = 11;
-		float* leftMin = new float[3], * leftMax = new float[3], * rightMin = new float[3], * rightMax = new float[3];
+		float leftMin[3], leftMax[3], rightMin[3], rightMax[3];
 		int mid = 0, finalDim = 0, isSame = 1;
 		float minCost = std::numeric_limits<float>::max();
 		float minCenter[3], maxCenter[3], step[3];
@@ -142,21 +144,27 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 }
 
 bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, const int index) {
-	if (!m_nodes[index].triangles.empty()) {
-		//叶子节点则逐一与包含的三角面求交
+	if (m_nodes[index].triangleCount > 0) {
+		//叶子节点：遍历其中的三角形，取最近命中
 		bool isHit = false;
-		for (int& triangle : m_nodes[index].triangles) {
-			if (hitTriangle(ray, t0, t1, intersection, triangle)) {
+		const uint32_t begin = m_nodes[index].triangleOffset, end = begin + m_nodes[index].triangleCount;
+		for (uint32_t i = begin; i < end; i++) {
+			if (hitTriangle(ray, t0, t1, intersection, m_triangles[i])) {
 				t1 = intersection.t;
 				isHit = true;
 			}
 		}
 		return isHit;
 	}
+	if (m_nodes[index].leftNode == 0 && m_nodes[index].rightNode == 0) {
+		//退化产生的空叶子：既无三角形也无子节点，直接判为未命中
+		//（旧实现把空的三角形列表当成内部节点，会递归回根节点，有无限递归风险）
+		return false;
+	}
 	float leftT, rightT;
 	int leftIndex = m_nodes[index].leftNode, rightIndex = m_nodes[index].rightNode;
 	//首先对包围盒求交，若包围盒不交则无需进行后续判断
-	bool isLeftHit = m_nodes[leftIndex].bbox->hit(ray, t0, t1, leftT), isRightHit = m_nodes[rightIndex].bbox->hit(ray, t0, t1, rightT);
+	bool isLeftHit = m_nodes[leftIndex].bbox.hit(ray, t0, t1, leftT), isRightHit = m_nodes[rightIndex].bbox.hit(ray, t0, t1, rightT);
 	if (isLeftHit && isRightHit) {
 		//若左右子节点均有交点，则根据相交时间的先后决定左右子节点的后续判断顺序
 		//若第一个子节点有交点，则再次判断另一个子节点的包围盒在新的时间下是否有交，若有则进行后续判断
@@ -164,7 +172,7 @@ bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, co
 			isLeftHit = hit(ray, t0, t1, intersection, leftIndex);
 			if (isLeftHit) {
 				t1 = intersection.t;
-				if (m_nodes[rightIndex].bbox->hit(ray, t0, t1, rightT)) {
+				if (m_nodes[rightIndex].bbox.hit(ray, t0, t1, rightT)) {
 					isRightHit = hit(ray, t0, t1, intersection, rightIndex);
 				}
 			}else {
@@ -174,7 +182,7 @@ bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, co
 			isRightHit = hit(ray, t0, t1, intersection, rightIndex);
 			if (isRightHit) {
 				t1 = intersection.t;
-				if (m_nodes[leftIndex].bbox->hit(ray, t0, t1, leftT)) {
+				if (m_nodes[leftIndex].bbox.hit(ray, t0, t1, leftT)) {
 					isLeftHit = hit(ray, t0, t1, intersection, leftIndex);
 				}
 			}else {
