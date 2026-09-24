@@ -57,6 +57,10 @@ public:
 	/// 设置法线并计算法线坐标系
 	/// </summary>
 	/// <param name="n">法线</param>
+	/// 混合材质高光强度 0..1：F0 = mix(0.04, Ks, blend)。纯镜面分支不受影响，仍用 F0 = Ks
+	static void setSpecularBlend(float blend) { s_specularBlend = glm::clamp(blend, 0.f, 1.f); }
+	static float s_specularBlend;
+
 	void setNormal(glm::vec3 n);
 private:
 	/// <summary>

@@ -2,6 +2,8 @@
 
 #include "constant.hpp"
 
+float Intersection::s_specularBlend = 0.25f;
+
 bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfVal, float& pdf, Sampler* sampler) {
 	glm::vec3 localWi = m_transposeTransform * wi;
 	if (material->type == DIFFUSE) {
@@ -115,7 +117,7 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	//作业 mtl 的 Ks 是“高光颜色/镜面反射率”，不是介电基底的 4%——
 	//此前混合分支写成 Ks*F(0.04) 会让同一材质在 Kd=0 与 Kd!=0 时高光差 25 倍，
 	//表现为“把 Kd 从 0 改成非 0，光斑亮度骤减”（veach-mis 亮>0.9 从 51382 掉到 221）。
-	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
+	glm::vec3 f = schlickFresnel(glm::mix(glm::vec3(0.04f), material->specular, s_specularBlend), glm::dot(wi, h));
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
 	//BRDF 为两项之和；PDF 为采样过程的边缘密度（= 两个 lobe 密度按采样权重求和）
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
