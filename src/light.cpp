@@ -1,4 +1,4 @@
-#include "light.hpp"
+ï»¿#include "light.hpp"
 
 Light::Light(const std::vector<int>& faces, const glm::vec3& radiance, Model* model) {
 	m_model = model;
@@ -12,13 +12,13 @@ Light::Light(const std::vector<int>& faces, const glm::vec3& radiance, Model* mo
 
 float Light::getCos(int face, glm::vec3 direction) const {
 	const glm::vec3* vertices = m_model->getFace(face);
-	//Ö±½ÓÍ¨¹ı²æ³ËÈı½ÇĞÎµÄÁ½Ìõ±ß»ñÈ¡¸ÃÃæµÄ·¨Ïß
+	//ç›´æ¥é€šè¿‡å‰ä¹˜ä¸‰è§’å½¢çš„ä¸¤æ¡è¾¹è·å–è¯¥é¢çš„æ³•çº¿
 	glm::vec3 normal = glm::normalize(glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[0]));
 	return glm::dot(normal, direction);
 }
 
 glm::vec3 Light::sample(float rnd, glm::vec2 uv, int& face) const {
-	//´Ë´¦Í¨¹ıÖØĞÄ×ø±ê²åÖµ»ñµÃ²ÉÑùµã£¬Í¨¹ıÒÔÏÂ±ä»»¼´¿É±£Ö¤ÔÚÈı½ÇĞÎÉÏ¾ùÔÈ²ÉÑù
+	//æ­¤å¤„é€šè¿‡é‡å¿ƒåæ ‡æ’å€¼è·å¾—é‡‡æ ·ç‚¹ï¼Œé€šè¿‡ä»¥ä¸‹å˜æ¢å³å¯ä¿è¯åœ¨ä¸‰è§’å½¢ä¸Šå‡åŒ€é‡‡æ ·
 	float u = 1 - glm::sqrt(uv.x), v = uv.y * (1 - u);
 	face = selectFace(rnd);
 	const glm::vec3* vertices = m_model->getFace(face);
@@ -26,7 +26,7 @@ glm::vec3 Light::sample(float rnd, glm::vec2 uv, int& face) const {
 }
 
 int Light::selectFace(float rnd) const {
-	//ÕÒµ½µÚÒ»¸ö²»Ğ¡ÓÚrndµÄÈ¨ÖØÖµ£¬¼ÆËã¸ÃÖµµÄË÷Òı£¬·µ»ØÎ»ÓÚ¸ÃË÷ÒıµÄÃæ
+	//æ‰¾åˆ°ç¬¬ä¸€ä¸ªä¸å°äºrndçš„æƒé‡å€¼ï¼Œè®¡ç®—è¯¥å€¼çš„ç´¢å¼•ï¼Œè¿”å›ä½äºè¯¥ç´¢å¼•çš„é¢
 	auto it = std::lower_bound(m_faceWeights.begin(), m_faceWeights.end(), rnd);
 	size_t faceIndex = std::distance(m_faceWeights.begin(), it);
 	if (faceIndex == m_faces.size()) {
@@ -40,7 +40,7 @@ void Light::calculateWeight() {
 	std::vector<float> areas;
 	for (const auto& face : m_faces) {
 		const glm::vec3* vertices = m_model->getFace(face);
-		//S(Èı½ÇĞÎ) = 0.5 * bc * sinA = 0.5 * ||vector(b) ¡Á vector(c)||
+		//S(ä¸‰è§’å½¢) = 0.5 * bc * sinA = 0.5 * ||vector(b) Ã— vector(c)||
 		glm::vec3 cross = glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[0]);
 		float area = 0.5f * glm::length(cross);
 		areas.push_back(area);

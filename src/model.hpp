@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <vector>
 #include <unordered_map>
@@ -7,22 +7,22 @@
 #include "material.hpp"
 
 /// <summary>
-/// Íø¸ñÃæÊı¾İ½á¹¹
+/// ç½‘æ ¼é¢æ•°æ®ç»“æ„
 /// </summary>
 struct Face {
 	/// <summary>
-	/// Ë÷ÒıÊı×é£ºÃ¿¸öÔªËØº¬ÎÆÀí×ø±êË÷ÒıÓë·¨ÏßË÷Òı£¨-1 ±íÊ¾ÎŞ£©¡£
-	/// ¸ÄÎª¶¨³¤Êı×éºó Face ²»ÔÙÓµÓĞ¶ÑÄÚ´æ£¬Ã¿¸öÃæÆ¬ÉÙÒ»´Î new/delete¡£
+	/// ç´¢å¼•æ•°ç»„ï¼šæ¯ä¸ªå…ƒç´ å«çº¹ç†åæ ‡ç´¢å¼•ä¸æ³•çº¿ç´¢å¼•ï¼ˆ-1 è¡¨ç¤ºæ— ï¼‰ã€‚
+	/// æ”¹ä¸ºå®šé•¿æ•°ç»„å Face ä¸å†æ‹¥æœ‰å †å†…å­˜ï¼Œæ¯ä¸ªé¢ç‰‡å°‘ä¸€æ¬¡ new/deleteã€‚
 	/// </summary>
 	glm::ivec2 indices[3];
 	/// <summary>
-	///	¶ÔÓ¦µÄ²ÄÖÊÃû³Æ
+	///	å¯¹åº”çš„æè´¨åç§°
 	/// </summary>
 	std::string materialName;
 };
 
 /// <summary>
-/// Ä£ĞÍÀà£¬°üº¬Ä£ĞÍµÄµ¼Èë²Ù×÷ÒÔ¼°´æ´¢Ä£ĞÍµÄÊı¾İ
+/// æ¨¡å‹ç±»ï¼ŒåŒ…å«æ¨¡å‹çš„å¯¼å…¥æ“ä½œä»¥åŠå­˜å‚¨æ¨¡å‹çš„æ•°æ®
 /// </summary>
 class Model {
 public:
@@ -30,140 +30,128 @@ public:
 	~Model();
 
 	/// <summary>
-	/// µ¼ÈëmtlÎÄ¼ş
+	/// å¯¼å…¥mtlæ–‡ä»¶
 	/// </summary>
-	/// <param name="filepath">mtlÎÄ¼şµÄÂ·¾¶</param>
+	/// <param name="filepath">mtlæ–‡ä»¶çš„è·¯å¾„</param>
 	void loadMTL(const std::string& filepath);
 	/// <summary>
-	/// µ¼ÈëobjÄ£ĞÍÎÄ¼ş
+	/// å¯¼å…¥objæ¨¡å‹æ–‡ä»¶
 	/// </summary>
-	/// <param name="filepath">objÎÄ¼şµÄÂ·¾¶</param>
+	/// <param name="filepath">objæ–‡ä»¶çš„è·¯å¾„</param>
 	void loadModel(std::string& filepath);
 
 	/// <summary>
-	/// ¸ù¾İÃæµÄË÷Òı»ñÈ¡¶ÔÓ¦µÄ¶¥µã
+	/// æ ¹æ®é¢çš„ç´¢å¼•è·å–å¯¹åº”çš„é¡¶ç‚¹
 	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <returns>¶ÔÓ¦Èı½ÇÃæµÄ¶¥µãÎ»ÖÃÊı×é</returns>
+	/// <param name="i">é¢ç´¢å¼•</param>
+	/// <returns>å¯¹åº”ä¸‰è§’é¢çš„é¡¶ç‚¹ä½ç½®æ•°ç»„</returns>
 	const glm::vec3* getFace(int i) const;
 	/// <summary>
-	/// ¸ù¾İÃæµÄË÷Òı»ñÈ¡¶ÔÓ¦µÄUVÎÆÀí×ø±ê
+	/// æ ¹æ®é¢çš„ç´¢å¼•è·å–å¯¹åº”çš„æè´¨
 	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <returns>¶ÔÓ¦Èı½ÇÃæµÄUVÎÆÀí×ø±êÊı×é</returns>
-	glm::vec2* getUV(int i) const;
-	/// <summary>
-	/// ¸ù¾İÃæµÄË÷Òı»ñÈ¡¶ÔÓ¦µÄ·¨Ïß
-	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <returns>¶ÔÓ¦Èı½ÇÃæµÄ·¨ÏßÊı×é</returns>
-	glm::vec3* getNormal(int i) const;
-	/// <summary>
-	/// ¸ù¾İÃæµÄË÷Òı»ñÈ¡¶ÔÓ¦µÄ²ÄÖÊ
-	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <returns>¶ÔÓ¦Èı½ÇÃæµÄ²ÄÖÊ</returns>
+	/// <param name="i">é¢ç´¢å¼•</param>
+	/// <returns>å¯¹åº”ä¸‰è§’é¢çš„æè´¨</returns>
 	const Material& getMaterial(int i) const { return m_materials.at(m_faces[i].materialName); }
-	/// Ö±½ÓÒıÓÃÃæÊı¾İÓë¶¥µãÊôĞÔ£¬±ÜÃâÇó½»ÈÈÂ·¾¶ÉÏµÄ new/delete
+	/// ç›´æ¥å¼•ç”¨é¢æ•°æ®ä¸é¡¶ç‚¹å±æ€§ï¼Œé¿å…æ±‚äº¤çƒ­è·¯å¾„ä¸Šçš„ new/delete
 	const Face& getFaceData(int i) const { return m_faces[i]; }
 	const glm::vec3& getVertexNormal(int i) const { return m_normals[i]; }
 	const glm::vec2& getVertexUV(int i) const { return m_texcoords[i]; }
 	/// <summary>
-	/// ¸ù¾İ²ÄÖÊÃû³Æ»ñÈ¡¶ÔÓ¦µÄ²ÄÖÊ
+	/// æ ¹æ®æè´¨åç§°è·å–å¯¹åº”çš„æè´¨
 	/// </summary>
-	/// <param name="materialName">²ÄÖÊÃû³Æ</param>
-	/// <returns>¶ÔÓ¦µÄ²ÄÖÊ</returns>
+	/// <param name="materialName">æè´¨åç§°</param>
+	/// <returns>å¯¹åº”çš„æè´¨</returns>
 	const Material& getMaterial(const std::string& materialName) const { return m_materials.at(materialName); }
 	/// <summary>
-	/// ÅĞ¶ÏÄ£ĞÍÖĞÊÇ·ñ´æÔÚÖ¸¶¨Ãû³ÆµÄ²ÄÖÊ£¨±ÜÃâ .at() Å×Òì³£µ¼ÖÂ±ÀÀ££©
+	/// åˆ¤æ–­æ¨¡å‹ä¸­æ˜¯å¦å­˜åœ¨æŒ‡å®šåç§°çš„æè´¨ï¼ˆé¿å… .at() æŠ›å¼‚å¸¸å¯¼è‡´å´©æºƒï¼‰
 	/// </summary>
-	/// <param name="materialName">²ÄÖÊÃû³Æ</param>
-	/// <returns>ÊÇ·ñ´æÔÚ¸Ã²ÄÖÊ</returns>
+	/// <param name="materialName">æè´¨åç§°</param>
+	/// <returns>æ˜¯å¦å­˜åœ¨è¯¥æè´¨</returns>
 	bool hasMaterial(const std::string& materialName) const { return m_materials.find(materialName) != m_materials.end(); }
 	/// <summary>
-	/// ½«Ö¸¶¨²ÄÖÊÉèÖÃÎª¹âÔ´ÀàĞÍ
+	/// å°†æŒ‡å®šæè´¨è®¾ç½®ä¸ºå…‰æºç±»å‹
 	/// </summary>
-	/// <param name="materialName">²ÄÖÊÃû³Æ</param>
-	/// <param name="radiance">¹âÔ´µÄradiance</param>
+	/// <param name="materialName">æè´¨åç§°</param>
+	/// <param name="radiance">å…‰æºçš„radiance</param>
 	void setLight(const std::string& materialName, const glm::vec3& radiance);
 	/// <summary>
-	/// ¸ù¾İÃæµÄË÷ÒıÒÔ¼°¸ø¶¨µÄÖá»ñÈ¡¶ÔÓ¦Èı½ÇĞÎÖ¸¶¨ÖáµÄÖĞĞÄÎ»ÖÃ
+	/// æ ¹æ®é¢çš„ç´¢å¼•ä»¥åŠç»™å®šçš„è½´è·å–å¯¹åº”ä¸‰è§’å½¢æŒ‡å®šè½´çš„ä¸­å¿ƒä½ç½®
 	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <param name="axis">Öá(0±íÊ¾xÖá£¬1±íÊ¾yÖá£¬2±íÊ¾zÖá)</param>
-	/// <returns>Ö¸¶¨Èı½ÇĞÎÖ¸¶¨ÖáµÄÖĞĞÄÎ»ÖÃ</returns>
+	/// <param name="i">é¢ç´¢å¼•</param>
+	/// <param name="axis">è½´(0è¡¨ç¤ºxè½´ï¼Œ1è¡¨ç¤ºyè½´ï¼Œ2è¡¨ç¤ºzè½´)</param>
+	/// <returns>æŒ‡å®šä¸‰è§’å½¢æŒ‡å®šè½´çš„ä¸­å¿ƒä½ç½®</returns>
 	float getAxisCenter(int i, int axis) const { return m_axisCenters[i][axis]; }
 	/// <summary>
-	/// ¸ù¾İÃæµÄË÷ÒıÒÔ¼°¸ø¶¨µÄÖá»ñÈ¡¶ÔÓ¦Èı½ÇĞÎÖ¸¶¨ÖáµÄÎ»ÖÃµÄ×î´óÖµ
+	/// æ ¹æ®é¢çš„ç´¢å¼•ä»¥åŠç»™å®šçš„è½´è·å–å¯¹åº”ä¸‰è§’å½¢æŒ‡å®šè½´çš„ä½ç½®çš„æœ€å¤§å€¼
 	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <param name="axis">Öá(0±íÊ¾xÖá£¬1±íÊ¾yÖá£¬2±íÊ¾zÖá)</param>
-	/// <returns>Ö¸¶¨Èı½ÇĞÎÖ¸¶¨ÖáµÄÎ»ÖÃµÄ×î´óÖµ</returns>
+	/// <param name="i">é¢ç´¢å¼•</param>
+	/// <param name="axis">è½´(0è¡¨ç¤ºxè½´ï¼Œ1è¡¨ç¤ºyè½´ï¼Œ2è¡¨ç¤ºzè½´)</param>
+	/// <returns>æŒ‡å®šä¸‰è§’å½¢æŒ‡å®šè½´çš„ä½ç½®çš„æœ€å¤§å€¼</returns>
 	float getAxisMaximum(int i, int axis) const { return m_axisMaximums[i][axis]; }
 	/// <summary>
-	/// ¸ù¾İÃæµÄË÷ÒıÒÔ¼°¸ø¶¨µÄÖá»ñÈ¡¶ÔÓ¦Èı½ÇĞÎÖ¸¶¨ÖáµÄÎ»ÖÃµÄ×îĞ¡Öµ
+	/// æ ¹æ®é¢çš„ç´¢å¼•ä»¥åŠç»™å®šçš„è½´è·å–å¯¹åº”ä¸‰è§’å½¢æŒ‡å®šè½´çš„ä½ç½®çš„æœ€å°å€¼
 	/// </summary>
-	/// <param name="i">ÃæË÷Òı</param>
-	/// <param name="axis">Öá(0±íÊ¾xÖá£¬1±íÊ¾yÖá£¬2±íÊ¾zÖá)</param>
-	/// <returns>Ö¸¶¨Èı½ÇĞÎÖ¸¶¨ÖáµÄÎ»ÖÃµÄ×îĞ¡Öµ</returns>
+	/// <param name="i">é¢ç´¢å¼•</param>
+	/// <param name="axis">è½´(0è¡¨ç¤ºxè½´ï¼Œ1è¡¨ç¤ºyè½´ï¼Œ2è¡¨ç¤ºzè½´)</param>
+	/// <returns>æŒ‡å®šä¸‰è§’å½¢æŒ‡å®šè½´çš„ä½ç½®çš„æœ€å°å€¼</returns>
 	float getAxisMinimum(int i, int axis) const { return m_axisMinimums[i][axis]; }
 	/// <summary>
-	/// ¼ÆËãËùÓĞÃæµÄËùÓĞÖáµÄÖĞĞÄÎ»ÖÃ¡¢×î´óÖµ¡¢×îĞ¡Öµ
+	/// è®¡ç®—æ‰€æœ‰é¢çš„æ‰€æœ‰è½´çš„ä¸­å¿ƒä½ç½®ã€æœ€å¤§å€¼ã€æœ€å°å€¼
 	/// </summary>
 	void calAxisParams();
 	/// <summary>
-	/// ÊÍ·ÅËù´æ´¢µÄËùÓĞÖáµÄÖĞĞÄÎ»ÖÃ¡¢×î´óÖµ¡¢×îĞ¡ÖµµÄÄÚ´æ
+	/// é‡Šæ”¾æ‰€å­˜å‚¨çš„æ‰€æœ‰è½´çš„ä¸­å¿ƒä½ç½®ã€æœ€å¤§å€¼ã€æœ€å°å€¼çš„å†…å­˜
 	/// </summary>
 	void freeAxisParams();
 
 	/// <summary>
-	/// »ñÈ¡Ä£ĞÍµÄÃæÊıÁ¿
+	/// è·å–æ¨¡å‹çš„é¢æ•°é‡
 	/// </summary>
-	/// <returns>Ä£ĞÍµÄÃæÊıÁ¿</returns>
+	/// <returns>æ¨¡å‹çš„é¢æ•°é‡</returns>
 	int getFaceNum() const { return static_cast<int>(m_faces.size()); }
 	/// <summary>
-	/// »ñÈ¡Ä£ĞÍÃû³Æ
+	/// è·å–æ¨¡å‹åç§°
 	/// </summary>
-	/// <returns>Ä£ĞÍÃû³Æ</returns>
+	/// <returns>æ¨¡å‹åç§°</returns>
 	std::string getModelName() const { return m_modelName; }
 private:
 	/// <summary>
-	/// Ä£ĞÍµÄ·¨ÏßÊı×é
+	/// æ¨¡å‹çš„æ³•çº¿æ•°ç»„
 	/// </summary>
 	std::vector<glm::vec3> m_normals;
 	/// <summary>
-	/// Ä£ĞÍµÄUV×ø±êÊı×é
+	/// æ¨¡å‹çš„UVåæ ‡æ•°ç»„
 	/// </summary>
 	std::vector<glm::vec2> m_texcoords;
 	/// <summary>
-	/// Ä£ĞÍµÄÃæÊı×é
+	/// æ¨¡å‹çš„é¢æ•°ç»„
 	/// </summary>
 	std::vector<Face> m_faces;
 	/// <summary>
-	/// Ä£ĞÍµÄ¸÷¸öÃæµÄ¶¥µãµÄÊı×é
+	/// æ¨¡å‹çš„å„ä¸ªé¢çš„é¡¶ç‚¹çš„æ•°ç»„
 	/// </summary>
 	/// <summary>
-	/// Ã¿¸öÃæÆ¬ 3 ¸ö¶¥µã£¬°´ÃæÆ¬Ë³ĞòÁ¬Ğø´æ·Å£¨ÖµÓïÒå£¬Ê¡µôÃ¿ÃæÒ»´Î¶Ñ·ÖÅä£©
+	/// æ¯ä¸ªé¢ç‰‡ 3 ä¸ªé¡¶ç‚¹ï¼ŒæŒ‰é¢ç‰‡é¡ºåºè¿ç»­å­˜æ”¾ï¼ˆå€¼è¯­ä¹‰ï¼Œçœæ‰æ¯é¢ä¸€æ¬¡å †åˆ†é…ï¼‰
 	/// </summary>
 	std::vector<glm::vec3> m_faceVertices;
 	/// <summary>
-	/// Ä£ĞÍµÄÊ¹ÓÃµÄ²ÄÖÊ¿âÖĞ²ÄÖÊÃû³Æµ½²ÄÖÊµÄÓ³Éä
+	/// æ¨¡å‹çš„ä½¿ç”¨çš„æè´¨åº“ä¸­æè´¨åç§°åˆ°æè´¨çš„æ˜ å°„
 	/// </summary>
 	std::unordered_map<std::string, Material> m_materials;
 	/// <summary>
-	/// Èı½ÇĞÎ¸÷¸öÖáµÄÖĞĞÄÎ»ÖÃµÄÊı×é
+	/// ä¸‰è§’å½¢å„ä¸ªè½´çš„ä¸­å¿ƒä½ç½®çš„æ•°ç»„
 	/// </summary>
 	glm::vec3* m_axisCenters;
 	/// <summary>
-	/// Èı½ÇĞÎ¸÷¸öÖáµÄÎ»ÖÃµÄ×î´óÖµµÄÊı×é
+	/// ä¸‰è§’å½¢å„ä¸ªè½´çš„ä½ç½®çš„æœ€å¤§å€¼çš„æ•°ç»„
 	/// </summary>
 	glm::vec3* m_axisMaximums;
 	/// <summary>
-	/// Èı½ÇĞÎ¸÷¸öÖáµÄÎ»ÖÃµÄ×îĞ¡ÖµµÄÊı×é
+	/// ä¸‰è§’å½¢å„ä¸ªè½´çš„ä½ç½®çš„æœ€å°å€¼çš„æ•°ç»„
 	/// </summary>
 	glm::vec3* m_axisMinimums;
 	/// <summary>
-	///	Ä£ĞÍÃû³Æ
+	///	æ¨¡å‹åç§°
 	/// </summary>
 	std::string m_modelName;
 };

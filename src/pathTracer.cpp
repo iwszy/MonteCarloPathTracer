@@ -1,4 +1,4 @@
-#include "pathTracer.hpp"
+ï»¿#include "pathTracer.hpp"
 #include "constant.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.hpp"
@@ -7,7 +7,7 @@
 #include <thread>
 namespace {
 	/// <summary>
-	/// ACES µçÓ°¼¶É«µ÷Ó³Éä£¨Narkowicz ÄâºÏ£©£º°Ñ HDR ÁÁ¶ÈÑ¹µ½ [0,1]£¬¸ß¹âÆ½»¬¹ı¶É²»¹ıÆØ
+	/// ACES ç”µå½±çº§è‰²è°ƒæ˜ å°„ï¼ˆNarkowicz æ‹Ÿåˆï¼‰ï¼šæŠŠ HDR äº®åº¦å‹åˆ° [0,1]ï¼Œé«˜å…‰å¹³æ»‘è¿‡æ¸¡ä¸è¿‡æ›
 	/// </summary>
 	glm::vec3 tonemapACES(const glm::vec3& x) {
 		const float a = 2.51f, b = 0.03f, c = 2.43f, d = 0.59f, e = 0.14f;
@@ -15,7 +15,7 @@ namespace {
 	}
 
 	/// <summary>
-	/// ÏßĞÔÑÕÉ« -> sRGB ±àÂë¡£8bit Í¼Æ¬±ØĞë×öÕâÒ»²½£¬·ñÔòÖĞ¼äµ÷ÕûÌåÆ«°µ
+	/// çº¿æ€§é¢œè‰² -> sRGB ç¼–ç ã€‚8bit å›¾ç‰‡å¿…é¡»åšè¿™ä¸€æ­¥ï¼Œå¦åˆ™ä¸­é—´è°ƒæ•´ä½“åæš—
 	/// </summary>
 	glm::vec3 linearToSRGB(const glm::vec3& c) {
 		glm::vec3 clamped = glm::max(c, glm::vec3(0));
@@ -25,7 +25,7 @@ namespace {
 	}
 
 	/// <summary>
-	/// [0,1] ¸¡µã -> 8bit£¨ËÄÉáÎåÈë£©
+	/// [0,1] æµ®ç‚¹ -> 8bitï¼ˆå››èˆäº”å…¥ï¼‰
 	/// </summary>
 	unsigned char toByte(float v) {
 		return static_cast<unsigned char>(glm::clamp(v, 0.f, 1.f) * 255.f + 0.5f);
@@ -37,10 +37,10 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_scene = scene;
 	m_camera = camera;
 	m_sampler = new Sampler();
-	m_spp = 256;
+	m_spp = 16;
 	int pixelNum = camera->getWidth() * camera->getHeight();
 	m_image = new unsigned char[pixelNum * 4];
-	//ÏßĞÔ HDR ÀÛ¼Ó»º³å£¬³öÍ¼Ê±ÔÙ×öÆØ¹âÓëÉ«µ÷Ó³Éä
+	//çº¿æ€§ HDR ç´¯åŠ ç¼“å†²ï¼Œå‡ºå›¾æ—¶å†åšæ›å…‰ä¸è‰²è°ƒæ˜ å°„
 	m_hdrImage = new float[static_cast<size_t>(pixelNum) * 3]();
 	m_exposure = camera->getExposure();
 	for (int i = 0; i < pixelNum; i++) {
@@ -61,11 +61,11 @@ PathTracer::~PathTracer() {
 }
 
 void PathTracer::developImage() const {
-	//°ÑÏßĞÔ HDR »º³å"ÏÔÓ°"³É 8bit ÏÔÊ¾Í¼£ºÆØ¹â -> ACES É«µ÷Ó³Éä -> sRGB ±àÂë
+	//æŠŠçº¿æ€§ HDR ç¼“å†²"æ˜¾å½±"æˆ 8bit æ˜¾ç¤ºå›¾ï¼šæ›å…‰ -> ACES è‰²è°ƒæ˜ å°„ -> sRGB ç¼–ç 
 	const int pixelNum = m_camera->getWidth() * m_camera->getHeight();
 	for (int i = 0; i < pixelNum; i++) {
 		glm::vec3 hdr(m_hdrImage[i * 3], m_hdrImage[i * 3 + 1], m_hdrImage[i * 3 + 2]);
-		//ÊıÖµ±£»¤£ºNaN£¨0/0 Ö®Àà£©ÖÃ 0£¬ÆäÓà¼Ğµ½ [0, 1e30]£¬±ÜÃâĞ´³öÎ´¶¨ÒåµÄÑÕÉ«
+		//æ•°å€¼ä¿æŠ¤ï¼šNaNï¼ˆ0/0 ä¹‹ç±»ï¼‰ç½® 0ï¼Œå…¶ä½™å¤¹åˆ° [0, 1e30]ï¼Œé¿å…å†™å‡ºæœªå®šä¹‰çš„é¢œè‰²
 		if (!(hdr[0] == hdr[0]) || !(hdr[1] == hdr[1]) || !(hdr[2] == hdr[2])) {
 			hdr = glm::vec3(0);
 		}
@@ -87,7 +87,7 @@ void PathTracer::developImage() const {
 }
 
 void PathTracer::saveHDR(const std::string& modelName) const {
-	//ÏßĞÔ HDR ½á¹û£¨Radiance .hdr / RGBE£©£¬·½±ãºóÆÚ×Ô¼ºµ÷ÆØ¹âÓëÉ«µ÷Ó³Éä
+	//çº¿æ€§ HDR ç»“æœï¼ˆRadiance .hdr / RGBEï¼‰ï¼Œæ–¹ä¾¿åæœŸè‡ªå·±è°ƒæ›å…‰ä¸è‰²è°ƒæ˜ å°„
 	std::string path = "results/" + modelName + "_" + std::to_string(m_spp) + ".hdr";
 	stbi_flip_vertically_on_write(1);
 	stbi_write_hdr(path.c_str(), m_camera->getWidth(), m_camera->getHeight(), 3, m_hdrImage);
@@ -102,7 +102,7 @@ void PathTracer::save(std::string modelName) const {
 }
 
 void PathTracer::render() {
-	//½«Í¼Ïñ·ÖÎªÈô¸É¿é£¬Ã¿¿é´óĞ¡Îª32*32£¬È»ºó½«Ã¿Ò»¿éµÄäÖÈ¾·Öµ½²»Í¬µÄÏß³Ì´¦Àí
+	//å°†å›¾åƒåˆ†ä¸ºè‹¥å¹²å—ï¼Œæ¯å—å¤§å°ä¸º32*32ï¼Œç„¶åå°†æ¯ä¸€å—çš„æ¸²æŸ“åˆ†åˆ°ä¸åŒçš„çº¿ç¨‹å¤„ç†
 	int width = static_cast<int>(glm::ceil(m_camera->getWidth() / 32.f));
 	int height = static_cast<int>(glm::ceil(m_camera->getHeight() / 32.f));
 	std::vector<std::unique_ptr<std::thread>> m_pixelThreads;
@@ -119,7 +119,7 @@ void PathTracer::render() {
 }
 
 void PathTracer::renderPixel(int x, int y) {
-	//°ÑÍ¼Ïñ·Ö³É 32x32 µÄĞ¡¿é£¬Ã¿¸ö¿éÓÉÒ»¸öÏß³Ì¸ºÔğ
+	//æŠŠå›¾åƒåˆ†æˆ 32x32 çš„å°å—ï¼Œæ¯ä¸ªå—ç”±ä¸€ä¸ªçº¿ç¨‹è´Ÿè´£
 	const int width = m_camera->getWidth();
 	const int imageX0 = x << 5, imageX1 = glm::min((x + 1) << 5, width);
 	const int imageY0 = y << 5, imageY1 = glm::min((y + 1) << 5, m_camera->getHeight());
@@ -132,8 +132,8 @@ void PathTracer::renderPixel(int x, int y) {
 				m_sampler->setIndex(i);
 				glm::vec2 rnd = m_sampler->get2D(0);
 				Ray ray = m_camera->generateRay(m + rnd.x, n + rnd.y);
-				//ÏßĞÔ HDR ÀÛ¼Ó£¬²»×öÖğ²ÉÑù½Ø¶Ï£º
-				//Öğ²ÉÑù clamp »á°Ñ¸ß¹âÑ¹°µ²¢ÈÃ¾ùÖµÓĞÆ«£¬ÕıÈ·µÄ×ö·¨ÊÇÀÛ¼Ó·øÁÁ¶È¡¢³öÍ¼Ê±Í³Ò»ÆØ¹â + É«µ÷Ó³Éä
+				//çº¿æ€§ HDR ç´¯åŠ ï¼Œä¸åšé€é‡‡æ ·æˆªæ–­ï¼š
+				//é€é‡‡æ · clamp ä¼šæŠŠé«˜å…‰å‹æš—å¹¶è®©å‡å€¼æœ‰åï¼Œæ­£ç¡®çš„åšæ³•æ˜¯ç´¯åŠ è¾äº®åº¦ã€å‡ºå›¾æ—¶ç»Ÿä¸€æ›å…‰ + è‰²è°ƒæ˜ å°„
 				color += trace(ray, 0);
 			}
 			color /= static_cast<float>(m_spp);
@@ -143,49 +143,6 @@ void PathTracer::renderPixel(int x, int y) {
 		}
 	}
 }
-
-void PathTracer::bilateralFilter(int k, float sigmaD, float sigmaR) {
-	int width = m_camera->getWidth(), height = m_camera->getHeight(), tmpWidth = width - 1, tmpHeight = height - 1, m = k / 2;
-	sigmaD = 1 / (2 * sigmaD * sigmaD);
-	sigmaR = 1 / (2 * sigmaR * sigmaR);
-	int pixelNum = height * width;
-	float* image = new float[pixelNum << 2];
-	for (int i = 0; i < pixelNum * 4; i++) {
-		image[i] = static_cast<float>(m_image[i]);
-	}
-	for (int y = 0; y <= tmpHeight; y++) {
-		for (int x = 0; x <= tmpWidth; x++) {
-			int center = (y * width + x) << 2;
-			float wAll = 0;
-			for (int i = -m; i <= m; i++) {
-				for (int j = -m; j <= m; j++) {
-					int finalX = x + i, finalY = y + j;
-					finalX = finalX >= 0 ? (finalX <= tmpWidth ? finalX : 2 * tmpWidth - finalX) : -finalX;
-					finalY = finalY >= 0 ? (finalY <= tmpHeight ? finalY : 2 * tmpHeight - finalY) : -finalY;
-					int index = (finalY * width + finalX) << 2;
-					float wd = (i * i + j * j) * sigmaD;
-					float rDiff = m_image[center] - m_image[index];
-					float gDiff = m_image[center + 1] - m_image[index + 1];
-					float bDiff = m_image[center + 2] - m_image[index + 2];
-					float wr = (rDiff * rDiff + gDiff * gDiff + bDiff * bDiff) * sigmaR;
-					float w = std::exp(-wd - wr);
-					image[center] += m_image[index] * w;
-					image[center + 1] += m_image[index + 1] * w;
-					image[center + 2] += m_image[index + 2] * w;
-					wAll += w;
-				}
-			}
-			image[center] /= wAll;
-			image[center + 1] /= wAll;
-			image[center + 2] /= wAll;
-		}
-	}
-	for (int i = 0; i < pixelNum * 4; i++) {
-		m_image[i] = static_cast<unsigned char>(image[i]);
-	}
-	delete[] image;
-}
-
 glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 	if (depth > MAX_DEPTH) {
 		return m_scene->getBackground();
@@ -196,32 +153,32 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 		return m_scene->getBackground();
 	}
 	if (intersection.material->type == LIGHT) {
-		//Ïà»úµÄµÚÒ»Ìõ¹âÏßÖ±½Ó¿´µ½¹âÔ´£º¹âÔ´²ÉÑù²ßÂÔÎŞ·¨²úÉú¸ÃÑù±¾£¬MIS È¨ÖØÎª 1
+		//ç›¸æœºçš„ç¬¬ä¸€æ¡å…‰çº¿ç›´æ¥çœ‹åˆ°å…‰æºï¼šå…‰æºé‡‡æ ·ç­–ç•¥æ— æ³•äº§ç”Ÿè¯¥æ ·æœ¬ï¼ŒMIS æƒé‡ä¸º 1
 		if (depth == 0) {
 			return intersection.material->radiance;
 		}
-		//BSDF ²ÉÑù²ßÂÔÃüÖĞ¹âÔ´£ºÓë¹âÔ´²ÉÑù²ßÂÔ×öÃİÆô·¢Ê½ MIS ¼ÓÈ¨ºó¼ÆÈë
+		//BSDF é‡‡æ ·ç­–ç•¥å‘½ä¸­å…‰æºï¼šä¸å…‰æºé‡‡æ ·ç­–ç•¥åšå¹‚å¯å‘å¼ MIS åŠ æƒåè®¡å…¥
 		float lightPDF = sampleLightPdf(ray, intersection);
-		//µ¥Ãæ¹âÔ´±³Ãæ²»·¢¹â£¨¹âÔ´²ÉÑù²ßÂÔÍ¬Ñù»áÌŞ³ı£©£¬´ËÊ±¼¸ºÎÏîÊ¹ PDF Îª 0
+		//å•é¢å…‰æºèƒŒé¢ä¸å‘å…‰ï¼ˆå…‰æºé‡‡æ ·ç­–ç•¥åŒæ ·ä¼šå‰”é™¤ï¼‰ï¼Œæ­¤æ—¶å‡ ä½•é¡¹ä½¿ PDF ä¸º 0
 		if (lightPDF <= 0.f) {
 			return glm::vec3(0);
 		}
 		return intersection.material->radiance * powerHeuristic(bsdfPDF, lightPDF);
 	}
 
-	//µ¥Ãæ²ÄÖÊ£º´Ó±³ÃæÉäÈëµÄ½»µã²»²ÎÓëÉ¢Éä¡£±¾¹¤³Ì³¡¾°ÓÉÎŞºñ¶ÈµÄÇ½Ãæ/µ²°å¹¹³É£¬
-	//±³Ãæ±¾¾Í²»¸Ã±»ÕÕÁÁ£»Èô°Ñ·¨Ïß·­µ½À´ÏòÒ»²à£¬µÈÓÚÈÃ¹â´Ó±³°åÂ©½ø·â±Õ¿Õ¼ä
-	//£¨bathroom2 ÖĞ Wood/Ceramic µÈ´óÃæ»ıµ²°å»áÒò´ËÕûÌåÆ«ÁÁ 2.4~2.7 ±¶£©¡£
-	//Á½ÖÖ²ÉÑù²ßÂÔ¶¼ÔÚÕâÀï·µ»Ø£¬NEE Óë BSDF ²ÉÑù¶ÔÍ¬Ò»½»µãÈÔÈ»Ò»ÖÂ¡£
+	//å•é¢æè´¨ï¼šä»èƒŒé¢å°„å…¥çš„äº¤ç‚¹ä¸å‚ä¸æ•£å°„ã€‚æœ¬å·¥ç¨‹åœºæ™¯ç”±æ— åšåº¦çš„å¢™é¢/æŒ¡æ¿æ„æˆï¼Œ
+	//èƒŒé¢æœ¬å°±ä¸è¯¥è¢«ç…§äº®ï¼›è‹¥æŠŠæ³•çº¿ç¿»åˆ°æ¥å‘ä¸€ä¾§ï¼Œç­‰äºè®©å…‰ä»èƒŒæ¿æ¼è¿›å°é—­ç©ºé—´
+	//ï¼ˆbathroom2 ä¸­ Wood/Ceramic ç­‰å¤§é¢ç§¯æŒ¡æ¿ä¼šå› æ­¤æ•´ä½“åäº® 2.4~2.7 å€ï¼‰ã€‚
+	//ä¸¤ç§é‡‡æ ·ç­–ç•¥éƒ½åœ¨è¿™é‡Œè¿”å›ï¼ŒNEE ä¸ BSDF é‡‡æ ·å¯¹åŒä¸€äº¤ç‚¹ä»ç„¶ä¸€è‡´ã€‚
 	if (glm::dot(intersection.normal, ray.direction) > 0.f) {
 		return glm::vec3(0);
 	}
 	m_sampler->shuffle();
 
-	//¦Ä ¾µÃæµÄÖ±½Ó¹â¹±Ï×ºãÎª 0£¨NEE ²»¿ÉÄÜÃüÖĞ£©£¬Ìø¹ı²ÉÑùÒÔÊ¡È¥ÎŞĞ§µÄ¹âÔ´²ÉÑùÓëÒõÓ°ÉäÏß
+	//Î´ é•œé¢çš„ç›´æ¥å…‰è´¡çŒ®æ’ä¸º 0ï¼ˆNEE ä¸å¯èƒ½å‘½ä¸­ï¼‰ï¼Œè·³è¿‡é‡‡æ ·ä»¥çœå»æ— æ•ˆçš„å…‰æºé‡‡æ ·ä¸é˜´å½±å°„çº¿
 	glm::vec3 direct = intersection.material->isDeltaSpecular() ? glm::vec3(0) : sampleDirectLight(ray.direction, intersection);
 
-	//¼ÆËã¼ä½Ó¹âÕÕ£¬Í¨¹ıBRDF²ÉÑùĞÂ·½Ïò
+	//è®¡ç®—é—´æ¥å…‰ç…§ï¼Œé€šè¿‡BRDFé‡‡æ ·æ–°æ–¹å‘
 	glm::vec3 wi;
 	float brdfPDF;
 	glm::vec3 brdf = intersection.brdf(ray.direction, wi, brdfPDF, m_sampler);
@@ -243,11 +200,11 @@ glm::vec3 PathTracer::sampleDirectLight(glm::vec3 wo, Intersection& intersection
 	int face;
 	float cosLightTheta, cosTheta, lightPDF, brdfPDF, misWeight;
 	Intersection shadowIntersection;
-	//¶Ô³¡¾°ÖĞµÄËùÓĞ¹âÔ´½øĞĞ²ÉÑù£¬·ÀÖ¹Ğ¡Ãæ»ı¹âÔ´ÄÑÒÔ±»²Éµ½
+	//å¯¹åœºæ™¯ä¸­çš„æ‰€æœ‰å…‰æºè¿›è¡Œé‡‡æ ·ï¼Œé˜²æ­¢å°é¢ç§¯å…‰æºéš¾ä»¥è¢«é‡‡åˆ°
 	for (auto light : lights) {
 		glm::vec3 lightPosition = light->sample(m_sampler->get1D(2), m_sampler->get2D(3), face);
 		glm::vec3 radiance = light->getRadiance();
-		//¸ù¾İÒõÓ°¹âÏß·½Ïòµ÷ÕûÔ­µãÏò·¨Ïß·½ÏòµÄÆ«ÒÆÁ¿
+		//æ ¹æ®é˜´å½±å…‰çº¿æ–¹å‘è°ƒæ•´åŸç‚¹å‘æ³•çº¿æ–¹å‘çš„åç§»é‡
 		float offsetScale = 1.f / glm::max(glm::dot(intersection.normal,
 			glm::normalize(lightPosition - intersection.point)), 0.1f);
 		glm::vec3 truePoint = intersection.point + intersection.normal * 1e-3f * offsetScale;
@@ -256,25 +213,25 @@ glm::vec3 PathTracer::sampleDirectLight(glm::vec3 wo, Intersection& intersection
 		Ray shadowRay(truePoint, glm::normalize(toLight));
 
 		cosLightTheta = light->getCos(face, -shadowRay.direction);
-		//Ãæ±³Ïò¹âÔ´£¬ÎŞĞ§²ÉÑù
+		//é¢èƒŒå‘å…‰æºï¼Œæ— æ•ˆé‡‡æ ·
 		if (cosLightTheta <= 0.f) {
 			continue;
 		}
 
 		cosTheta = glm::dot(intersection.normal, shadowRay.direction);
-		//´Ë´¦Ó¦¸ù¾İ²ÄÖÊµÄÍ¸Ã÷¶È×ö½øÒ»²½µÄ´¦Àí£¬µ«±¾ÏîÄ¿²»´¦ÀíÍ¸Ã÷²ÄÖÊ£¬¹ÊÒõÓ°ÉäÏß±³Ïò±íÃæÊ±Ò²ÊÓ×÷ÎŞĞ§
+		//æ­¤å¤„åº”æ ¹æ®æè´¨çš„é€æ˜åº¦åšè¿›ä¸€æ­¥çš„å¤„ç†ï¼Œä½†æœ¬é¡¹ç›®ä¸å¤„ç†é€æ˜æè´¨ï¼Œæ•…é˜´å½±å°„çº¿èƒŒå‘è¡¨é¢æ—¶ä¹Ÿè§†ä½œæ— æ•ˆ
 		if (cosTheta <= 0.f) {
 			continue;
 		}
-		//ÈôÒõÓ°ÉäÏß²»·ûºÏBRDF·Ö²¼Ò²ÊÓÎªÎŞĞ§²ÉÑù
+		//è‹¥é˜´å½±å°„çº¿ä¸ç¬¦åˆBRDFåˆ†å¸ƒä¹Ÿè§†ä¸ºæ— æ•ˆé‡‡æ ·
 		if (!intersection.brdf(wo, shadowRay.direction, brdf, brdfPDF, m_sampler)) {
 			continue;
 		}
 
-		//ÒõÓ°ÉäÏßÎ´»÷ÖĞÎïÌå»ò»÷ÖĞµÄÎïÌå²»ÊÇËù²ÉÑùµÄ¹âÔ´ÃæÔòÊÓÎªÎŞĞ§²ÉÑù
-		//¿É¼ûĞÔÅĞ¶¨ÓÃ¾àÀë¶ø²»ÊÇ"ÃüÖĞµÄÃæ id"£º¹âÔ´ÃæÓëÌì»¨°å/Ç½¹²ÃæÊ±£¬ÒõÓ°ÉäÏßÔÚÁ½ÕßÉÏµÄ t ÍêÈ«ÏàÍ¬£¬
-		//·µ»ØÄÄÒ»¸öÈ¡¾öÓÚ BVH Ò¶ÄÚË³Ğò£¨ÈÎÒâ£©£¬»á°Ñ´óÁ¿±¾¸ÃÓĞĞ§µÄ¹âÔ´Ñù±¾ÎóÅĞÎªÕÚµ²¶ø¶ªÆú¡£
-		//Ö»Òª×î½üµÄÕÚµ²Îï²»±È¹âÃæ¸ü½ü£¬¾ÍËµÃ÷¸Ã×ÅÉ«µãÄÜ¿´¼û¹âÔ´¡£
+		//é˜´å½±å°„çº¿æœªå‡»ä¸­ç‰©ä½“æˆ–å‡»ä¸­çš„ç‰©ä½“ä¸æ˜¯æ‰€é‡‡æ ·çš„å…‰æºé¢åˆ™è§†ä¸ºæ— æ•ˆé‡‡æ ·
+		//å¯è§æ€§åˆ¤å®šç”¨è·ç¦»è€Œä¸æ˜¯"å‘½ä¸­çš„é¢ id"ï¼šå…‰æºé¢ä¸å¤©èŠ±æ¿/å¢™å…±é¢æ—¶ï¼Œé˜´å½±å°„çº¿åœ¨ä¸¤è€…ä¸Šçš„ t å®Œå…¨ç›¸åŒï¼Œ
+		//è¿”å›å“ªä¸€ä¸ªå–å†³äº BVH å¶å†…é¡ºåºï¼ˆä»»æ„ï¼‰ï¼Œä¼šæŠŠå¤§é‡æœ¬è¯¥æœ‰æ•ˆçš„å…‰æºæ ·æœ¬è¯¯åˆ¤ä¸ºé®æŒ¡è€Œä¸¢å¼ƒã€‚
+		//åªè¦æœ€è¿‘çš„é®æŒ¡ç‰©ä¸æ¯”å…‰é¢æ›´è¿‘ï¼Œå°±è¯´æ˜è¯¥ç€è‰²ç‚¹èƒ½çœ‹è§å…‰æºã€‚
 		float lightDistance = glm::sqrt(glm::dot(toLight, toLight));
 		if (!m_scene->hit(shadowRay, shadowIntersection) || shadowIntersection.t < lightDistance * (1.f - 1e-3f)) {
 			continue;
@@ -294,7 +251,7 @@ float PathTracer::sampleLightPdf(const Ray& ray, const Intersection& intersectio
 	if (cosLightTheta <= 0.f) {
 		return 0.f;
 	}
-	//Óë sampleDirectLight ÖĞÍ¬Ò»Ì×Ãæ»ıµ½Á¢Ìå½ÇµÄ±ä»»
+	//ä¸ sampleDirectLight ä¸­åŒä¸€å¥—é¢ç§¯åˆ°ç«‹ä½“è§’çš„å˜æ¢
 	glm::vec3 toLight = intersection.point - ray.origin;
 	return glm::dot(toLight, toLight) / (light->getArea() * cosLightTheta);
 }

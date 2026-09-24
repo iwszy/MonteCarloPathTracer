@@ -1,72 +1,72 @@
-#pragma once
+ï»¿#pragma once
 
 #include <glm/glm.hpp>
 #include "ray.hpp"
 #include "constant.hpp"
 
 /// <summary>
-/// Ïà»úÀà£¬°üÀ¨Ïà»úµÄ»ù´¡¹¦ÄÜ²¢Ìá¹©Éú³ÉÉäÏßµÄ¹¦ÄÜ
+/// ç›¸æœºç±»ï¼ŒåŒ…æ‹¬ç›¸æœºçš„åŸºç¡€åŠŸèƒ½å¹¶æä¾›ç”Ÿæˆå°„çº¿çš„åŠŸèƒ½
 /// </summary>
 class Camera {
 public:
 	Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height, float exposure = DEFAULT_EXPOSURE);
 
 	/// <summary>
-	/// ¸ù¾İËù¸øÏñËØÎ»ÖÃÉú³ÉÉäÏß
+	/// æ ¹æ®æ‰€ç»™åƒç´ ä½ç½®ç”Ÿæˆå°„çº¿
 	/// </summary>
-	/// <param name="px">ÏñËØµÄx×ø±ê</param>
-	/// <param name="py">ÏñËØµÄy×ø±ê</param>
-	/// <returns>Ò»ÌõÆğµãÎªÏà»úÎ»ÖÃ£¬·½Ïò´ÓÆğµãµ½ÏñËØÎ»ÖÃµÄÉäÏß</returns>
+	/// <param name="px">åƒç´ çš„xåæ ‡</param>
+	/// <param name="py">åƒç´ çš„yåæ ‡</param>
+	/// <returns>ä¸€æ¡èµ·ç‚¹ä¸ºç›¸æœºä½ç½®ï¼Œæ–¹å‘ä»èµ·ç‚¹åˆ°åƒç´ ä½ç½®çš„å°„çº¿</returns>
 	Ray generateRay(float px, float py) const;
 
 	/// <summary>
-	/// »ñÈ¡³ÉÏñÆ½ÃæµÄ¿í¶È
+	/// è·å–æˆåƒå¹³é¢çš„å®½åº¦
 	/// </summary>
-	/// <returns>³ÉÏñÆ½ÃæµÄ¿í¶È</returns>
+	/// <returns>æˆåƒå¹³é¢çš„å®½åº¦</returns>
 	int getWidth() const { return m_width; }
 	/// <summary>
-	/// »ñÈ¡³ÉÏñÆ½ÃæµÄ¸ß¶È
+	/// è·å–æˆåƒå¹³é¢çš„é«˜åº¦
 	/// </summary>
-	/// <returns>³ÉÏñÆ½ÃæµÄ¸ß¶È</returns>
+	/// <returns>æˆåƒå¹³é¢çš„é«˜åº¦</returns>
 	int getHeight() const { return m_height; }
 	/// <summary>
-	/// »ñÈ¡Ïà»úÆØ¹âÏµÊı£¨¿ÉÓÉ xml µÄ camera ÔªËØ exposure ÊôĞÔÖ¸¶¨£©
+	/// è·å–ç›¸æœºæ›å…‰ç³»æ•°ï¼ˆå¯ç”± xml çš„ camera å…ƒç´  exposure å±æ€§æŒ‡å®šï¼‰
 	/// </summary>
-	/// <returns>ÆØ¹âÏµÊı</returns>
+	/// <returns>æ›å…‰ç³»æ•°</returns>
 	float getExposure() const { return m_exposure; }
 private:
 
 	/// <summary>
-	/// Ïà»úÎ»ÖÃ
+	/// ç›¸æœºä½ç½®
 	/// </summary>
 	glm::vec3 m_eye;
 
 	/// <summary>
-	/// ÆØ¹âÏµÊı£¨ÓÉ xml µÄ camera ÔªËØÖ¸¶¨£¬»òÈ¡Ä¬ÈÏÖµ£©
+	/// æ›å…‰ç³»æ•°ï¼ˆç”± xml çš„ camera å…ƒç´ æŒ‡å®šï¼Œæˆ–å–é»˜è®¤å€¼ï¼‰
 	/// </summary>
 	float m_exposure;
 	/// <summary>
-	/// Ïà»ú×ø±êÏµµÄ»ùÏòÁ¿
+	/// ç›¸æœºåæ ‡ç³»çš„åŸºå‘é‡
 	/// </summary>
 	glm::vec3 m_u, m_v, m_w;
 	/// <summary>
-	/// Ïà»ú¾àÀë³ÉÏñÆ½ÃæµÄÎ»ÖÃ
+	/// ç›¸æœºè·ç¦»æˆåƒå¹³é¢çš„ä½ç½®
 	/// </summary>
 	float m_distance;
 	/// <summary>
-	/// ×îÖÕÍ¼ÏñµÄ¿í¶ÈÓë¸ß¶È
+	/// æœ€ç»ˆå›¾åƒçš„å®½åº¦ä¸é«˜åº¦
 	/// </summary>
 	int m_width, m_height;
 	/// <summary>
-	/// ³ÉÏñÆ½ÃæµÄ¸ß¶ÈµÄÒ»°ë
+	/// æˆåƒå¹³é¢çš„é«˜åº¦çš„ä¸€åŠ
 	/// </summary>
 	float m_top;
 	/// <summary>
-	/// ³ÉÏñÆ½ÃæµÄ¿í¶ÈµÄÒ»°ë
+	/// æˆåƒå¹³é¢çš„å®½åº¦çš„ä¸€åŠ
 	/// </summary>
 	float m_right;
 	/// <summary>
-	/// ³ÉÏñÆ½Ãæ¸ß¶È³ıÒÔ×îÖÕÍ¼ÏñµÄ¸ß¶ÈµÄÖµ
+	/// æˆåƒå¹³é¢é«˜åº¦é™¤ä»¥æœ€ç»ˆå›¾åƒçš„é«˜åº¦çš„å€¼
 	/// </summary>
 	float m_topDivHeightMul2;
 };

@@ -1,123 +1,123 @@
-#pragma once
+ï»¿#pragma once
 
 #include <glm/glm.hpp>
 #include "material.hpp"
 #include "sampler.hpp"
 
 /// <summary>
-/// ½»µãÀà£¬¼ÇÂ¼½»µãËùÐè²ÎÊý²¢Ìá¹©BRDF¹¦ÄÜ
+/// äº¤ç‚¹ç±»ï¼Œè®°å½•äº¤ç‚¹æ‰€éœ€å‚æ•°å¹¶æä¾›BRDFåŠŸèƒ½
 /// </summary>
 class Intersection {
 public:
 	/// <summary>
-	/// ½»µãÎ»ÖÃ
+	/// äº¤ç‚¹ä½ç½®
 	/// </summary>
 	glm::vec3 point;
 	/// <summary>
-	/// ½»µã·¨Ïß
+	/// äº¤ç‚¹æ³•çº¿
 	/// </summary>
 	glm::vec3 normal;
 	/// <summary>
-	/// ½»µãÎÆÀí×ø±ê
+	/// äº¤ç‚¹çº¹ç†åæ ‡
 	/// </summary>
 	glm::vec2 uv;
 	/// <summary>
-	/// ÉäÏßÔÚ¸ÃµãµÄÊ±¼äÖµ
+	/// å°„çº¿åœ¨è¯¥ç‚¹çš„æ—¶é—´å€¼
 	/// </summary>
 	float t;
 	/// <summary>
-	/// ½»µãËùÔÚÃæµÄ²ÄÖÊ
+	/// äº¤ç‚¹æ‰€åœ¨é¢çš„æè´¨
 	/// </summary>
 	const Material* material = nullptr;
 	/// <summary>
-	/// ½»µãËùÔÚÃæµÄË÷Òý
+	/// äº¤ç‚¹æ‰€åœ¨é¢çš„ç´¢å¼•
 	/// </summary>
 	int id;
 
 	/// <summary>
-	/// ÅÐ¶Ï¸ø¶¨µÄ³öÉä·½ÏòÊÇ·ñ·ûºÏBRDF·Ö²¼£¬²¢¼ÆËãPDFÓëBRDFÖµ
+	/// åˆ¤æ–­ç»™å®šçš„å‡ºå°„æ–¹å‘æ˜¯å¦ç¬¦åˆBRDFåˆ†å¸ƒï¼Œå¹¶è®¡ç®—PDFä¸ŽBRDFå€¼
 	/// </summary>
-	/// <param name="wo">ÈëÉä·½Ïò</param>
-	/// <param name="wi">³öÉä·½Ïò</param>
-	/// <param name="brdfVal">BRDFÖµ</param>
-	/// <param name="pdf">BRDFÔÚ³öÉä·½ÏòÉÏµÄPDF</param>
-	/// <param name="sampler">²ÉÑùÆ÷</param>
-	/// <returns>³öÉä·½ÏòÊÇ·ñ·ûºÏBRDF·Ö²¼£¬¼´pdfÊÇ·ñ>=0</returns>
+	/// <param name="wo">å…¥å°„æ–¹å‘</param>
+	/// <param name="wi">å‡ºå°„æ–¹å‘</param>
+	/// <param name="brdfVal">BRDFå€¼</param>
+	/// <param name="pdf">BRDFåœ¨å‡ºå°„æ–¹å‘ä¸Šçš„PDF</param>
+	/// <param name="sampler">é‡‡æ ·å™¨</param>
+	/// <returns>å‡ºå°„æ–¹å‘æ˜¯å¦ç¬¦åˆBRDFåˆ†å¸ƒï¼Œå³pdfæ˜¯å¦>=0</returns>
 	bool brdf(glm::vec3 wo, glm::vec3 wi, glm::vec3& brdfVal, float& pdf, Sampler* sampler);
 	/// <summary>
-	/// ¸ù¾Ý²ÄÖÊµÄBRDF·Ö²¼²ÉÑùÐÂ·½Ïò²¢¼ÆËãPDFÓëBRDFÖµ
+	/// æ ¹æ®æè´¨çš„BRDFåˆ†å¸ƒé‡‡æ ·æ–°æ–¹å‘å¹¶è®¡ç®—PDFä¸ŽBRDFå€¼
 	/// </summary>
-	/// <param name="wo">ÈëÉä·½Ïò</param>
-	/// <param name="wi">³öÉä·½Ïò</param>
-	/// <param name="pdf">BRDFµÄPDF</param>
-	/// <param name="sampler">²ÉÑùÆ÷</param>
-	/// <returns>BRDFÖµ</returns>
+	/// <param name="wo">å…¥å°„æ–¹å‘</param>
+	/// <param name="wi">å‡ºå°„æ–¹å‘</param>
+	/// <param name="pdf">BRDFçš„PDF</param>
+	/// <param name="sampler">é‡‡æ ·å™¨</param>
+	/// <returns>BRDFå€¼</returns>
 	glm::vec3 brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* sampler);
 	/// <summary>
-	/// ÉèÖÃ·¨Ïß²¢¼ÆËã·¨Ïß×ø±êÏµ
+	/// è®¾ç½®æ³•çº¿å¹¶è®¡ç®—æ³•çº¿åæ ‡ç³»
 	/// </summary>
-	/// <param name="n">·¨Ïß</param>
-	/// »ìºÏ²ÄÖÊ¸ß¹âÇ¿¶È 0..1£ºF0 = mix(0.04, Ks, blend)¡£´¿¾µÃæ·ÖÖ§²»ÊÜÓ°Ïì£¬ÈÔÓÃ F0 = Ks
+	/// <param name="n">æ³•çº¿</param>
+	/// æ··åˆæè´¨é«˜å…‰å¼ºåº¦ 0..1ï¼šF0 = mix(0.04, Ks, blend)ã€‚çº¯é•œé¢åˆ†æ”¯ä¸å—å½±å“ï¼Œä»ç”¨ F0 = Ks
 	static void setSpecularBlend(float blend) { s_specularBlend = glm::clamp(blend, 0.f, 1.f); }
 	static float s_specularBlend;
 
 	void setNormal(glm::vec3 n);
 private:
 	/// <summary>
-	/// ´Ó·¨Ïß×ø±êÏµÏòÊÀ½ç×ø±êÏµµÄ×ª»»¾ØÕó
+	/// ä»Žæ³•çº¿åæ ‡ç³»å‘ä¸–ç•Œåæ ‡ç³»çš„è½¬æ¢çŸ©é˜µ
 	/// </summary>
 	glm::mat3 m_transform = glm::mat3(0);
 	/// <summary>
-	/// ´ÓÊÀ½ç×ø±êÏµÏò·¨Ïß×ø±êÏµµÄ×ª»»¾ØÕó
+	/// ä»Žä¸–ç•Œåæ ‡ç³»å‘æ³•çº¿åæ ‡ç³»çš„è½¬æ¢çŸ©é˜µ
 	/// </summary>
 	glm::mat3 m_transposeTransform = glm::mat3(0);
 
 	/// <summary>
-	/// ¸ù¾ÝÂþ·´ÉäBRDF²ÉÑùÐÂ·½Ïò²¢¼ÆËãPDFÓëBRDFÖµ
+	/// æ ¹æ®æ¼«åå°„BRDFé‡‡æ ·æ–°æ–¹å‘å¹¶è®¡ç®—PDFä¸ŽBRDFå€¼
 	/// </summary>
-	/// <param name="wi">³öÉä·½Ïò</param>
-	/// <param name="pdf">BRDFµÄPDF</param>
-	/// <param name="sampler">²ÉÑùÆ÷</param>
-	/// <returns>BRDFÖµ</returns>
+	/// <param name="wi">å‡ºå°„æ–¹å‘</param>
+	/// <param name="pdf">BRDFçš„PDF</param>
+	/// <param name="sampler">é‡‡æ ·å™¨</param>
+	/// <returns>BRDFå€¼</returns>
 	glm::vec3 diffuseReflect(glm::vec3& wi, float& pdf, Sampler* sampler) const;
 	/// <summary>
-	/// ¸ù¾Ý¾µÃæ·´ÉäBRDF²ÉÑùÐÂ·½Ïò²¢¼ÆËãPDFÓëBRDFÖµ
+	/// æ ¹æ®é•œé¢åå°„BRDFé‡‡æ ·æ–°æ–¹å‘å¹¶è®¡ç®—PDFä¸ŽBRDFå€¼
 	/// </summary>
-	/// <param name="wo">ÈëÉä·½Ïò</param>
-	/// <param name="wi">³öÉä·½Ïò</param>
-	/// <param name="pdf">BRDFµÄPDF</param>
-	/// <param name="sampler">²ÉÑùÆ÷</param>
-	/// <returns>BRDFÖµ</returns>
+	/// <param name="wo">å…¥å°„æ–¹å‘</param>
+	/// <param name="wi">å‡ºå°„æ–¹å‘</param>
+	/// <param name="pdf">BRDFçš„PDF</param>
+	/// <param name="sampler">é‡‡æ ·å™¨</param>
+	/// <returns>BRDFå€¼</returns>
 	glm::vec3 specularReflect(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* sampler);
 
 	/// <summary>
-	/// Çó"Âþ·´Éä + ¾µÃæ·´Éä"»ìºÏ²ÄÖÊµÄÍêÕû BRDF ÖµÓë²ÉÑù PDF
-	/// BRDF È¡Á½ÏîÖ®ºÍ£¨Phong Ä£ÐÍÁ½ÏîÍ¬Ê±´æÔÚ£©£¬PDF È¡Õû¸ö²ÉÑù¹ý³ÌµÄ±ßÔµÃÜ¶È
-	/// £¨Á½¸ö lobe µÄÃÜ¶È°´È¨ÖØÇóºÍ£©¡£ÇóÖµÂ·¾¶Óë²ÉÑùÂ·¾¶±ØÐë¹²ÓÃ´Ëº¯Êý£¬
-	/// ·ñÔò¹âÔ´²ÉÑùÓë BSDF ²ÉÑù¹À¼ÆµÄ»ý·Ö¶ÔÏó²»Ò»ÖÂ£¬MIS ¼ÓÈ¨ÔÚÊýÑ§ÉÏ²»³ÉÁ¢¡£
+	/// æ±‚"æ¼«åå°„ + é•œé¢åå°„"æ··åˆæè´¨çš„å®Œæ•´ BRDF å€¼ä¸Žé‡‡æ · PDF
+	/// BRDF å–ä¸¤é¡¹ä¹‹å’Œï¼ˆPhong æ¨¡åž‹ä¸¤é¡¹åŒæ—¶å­˜åœ¨ï¼‰ï¼ŒPDF å–æ•´ä¸ªé‡‡æ ·è¿‡ç¨‹çš„è¾¹ç¼˜å¯†åº¦
+	/// ï¼ˆä¸¤ä¸ª lobe çš„å¯†åº¦æŒ‰æƒé‡æ±‚å’Œï¼‰ã€‚æ±‚å€¼è·¯å¾„ä¸Žé‡‡æ ·è·¯å¾„å¿…é¡»å…±ç”¨æ­¤å‡½æ•°ï¼Œ
+	/// å¦åˆ™å…‰æºé‡‡æ ·ä¸Ž BSDF é‡‡æ ·ä¼°è®¡çš„ç§¯åˆ†å¯¹è±¡ä¸ä¸€è‡´ï¼ŒMIS åŠ æƒåœ¨æ•°å­¦ä¸Šä¸æˆç«‹ã€‚
 	/// </summary>
-	/// <param name="wo">ÈëÉä·½Ïò</param>
-	/// <param name="wi">³öÉä·½Ïò</param>
-	/// <param name="pdf">±ßÔµ²ÉÑù PDF</param>
-	/// <returns>ÍêÕû BRDF Öµ</returns>
+	/// <param name="wo">å…¥å°„æ–¹å‘</param>
+	/// <param name="wi">å‡ºå°„æ–¹å‘</param>
+	/// <param name="pdf">è¾¹ç¼˜é‡‡æ · PDF</param>
+	/// <returns>å®Œæ•´ BRDF å€¼</returns>
 	glm::vec3 evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) const;
 	/// <summary>
-	/// ¸ù¾ÝGGX·Ö²¼¼ÆËãÎ¢±íÃæ·¨Ïß·Ö²¼Ïî
+	/// æ ¹æ®GGXåˆ†å¸ƒè®¡ç®—å¾®è¡¨é¢æ³•çº¿åˆ†å¸ƒé¡¹
 	/// </summary>
-	/// <param name="hDotN">°ë³ÌÏòÁ¿Óë·¨ÏßµÄµã»ý</param>
-	/// <returns>DÖµ</returns>
+	/// <param name="hDotN">åŠç¨‹å‘é‡ä¸Žæ³•çº¿çš„ç‚¹ç§¯</param>
+	/// <returns>Då€¼</returns>
 	float ggx(float hDotN) const;
 	/// <summary>
-	/// ¼ÆËã·ÆÄù¶ûÏî
+	/// è®¡ç®—è²æ¶…å°”é¡¹
 	/// </summary>
-	/// <param name="f0">´¹Ö±ÈëÉäÊ±µÄ·´ÉäÂÊ</param>
-	/// <param name="iDotN">³öÉä·½ÏòÓë·¨ÏßµÄµã»ý</param>
-	/// <returns>·ÆÄù¶ûÏî</returns>
+	/// <param name="f0">åž‚ç›´å…¥å°„æ—¶çš„åå°„çŽ‡</param>
+	/// <param name="iDotN">å‡ºå°„æ–¹å‘ä¸Žæ³•çº¿çš„ç‚¹ç§¯</param>
+	/// <returns>è²æ¶…å°”é¡¹</returns>
 	glm::vec3 schlickFresnel(glm::vec3 f0, float iDotN) const;
 	/// <summary>
-	/// ¸ù¾Ýsmith GGXÄ£ÐÍ¼ÆËã¼¸ºÎÕÚ±ÎÓëÒõÓ°º¯ÊýÏî
+	/// æ ¹æ®smith GGXæ¨¡åž‹è®¡ç®—å‡ ä½•é®è”½ä¸Žé˜´å½±å‡½æ•°é¡¹
 	/// </summary>
-	/// <param name="wDotN">ÉäÏßÓë·¨ÏßµÄµã»ý</param>
-	/// <returns>¼¸ºÎÕÚ±ÎÓëÒõÓ°º¯ÊýÏî</returns>
+	/// <param name="wDotN">å°„çº¿ä¸Žæ³•çº¿çš„ç‚¹ç§¯</param>
+	/// <returns>å‡ ä½•é®è”½ä¸Žé˜´å½±å‡½æ•°é¡¹</returns>
 	float smithGGX(float wDotN) const;
 };

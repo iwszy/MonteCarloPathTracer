@@ -1,4 +1,4 @@
-#include "model.hpp"
+ï»¿#include "model.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,7 +8,7 @@
 
 namespace {
 	/// <summary>
-	/// ÅĞ¶ÏĞĞÊ×¹Ø¼ü×Ö£ºĞèÕûÌåÆ¥ÅäÇÒÆäºó½ô¸ú¿Õ°×»òĞĞÎ²
+	/// åˆ¤æ–­è¡Œé¦–å…³é”®å­—ï¼šéœ€æ•´ä½“åŒ¹é…ä¸”å…¶åç´§è·Ÿç©ºç™½æˆ–è¡Œå°¾
 	/// </summary>
 	inline bool matchKeyword(const char* p, const char* end, const char* keyword) {
 		while (*keyword != '\0') {
@@ -30,13 +30,13 @@ namespace {
 	}
 
 	/// <summary>
-	/// ½âÎö¸¡µãÊı£ºÌø¹ıÇ°µ¼¿Õ°×¡¢È¡×î³¤ºÏ·¨Ç°×º£¬½á¹ûÓë iss >> float ÖğÎ»Ò»ÖÂ
+	/// è§£ææµ®ç‚¹æ•°ï¼šè·³è¿‡å‰å¯¼ç©ºç™½ã€å–æœ€é•¿åˆæ³•å‰ç¼€ï¼Œç»“æœä¸ iss >> float é€ä½ä¸€è‡´
 	/// </summary>
 	inline float readFloat(const char*& p) {
 		char* stop = nullptr;
 		float value = std::strtof(p, &stop);
 		if (stop == p) {
-			//·Ç·¨ÊäÈë£ºÓëÁ÷ÌáÈ¡Ê§°ÜÒ»ÖÂ£¬·µ»Ø 0 ²¢Ìø¹ı¸Ã token£¬±ÜÃâËÀÑ­»·
+			//éæ³•è¾“å…¥ï¼šä¸æµæå–å¤±è´¥ä¸€è‡´ï¼Œè¿”å› 0 å¹¶è·³è¿‡è¯¥ tokenï¼Œé¿å…æ­»å¾ªç¯
 			while (*p != '\0' && !isBlank(*p)) { ++p; }
 			return 0.f;
 		}
@@ -45,7 +45,7 @@ namespace {
 	}
 
 	/// <summary>
-	/// ½âÎöÊ®½øÖÆÕûÊı
+	/// è§£æåè¿›åˆ¶æ•´æ•°
 	/// </summary>
 	inline int readInt(const char*& p) {
 		char* stop = nullptr;
@@ -59,7 +59,7 @@ namespace {
 	}
 
 	/// <summary>
-	/// ¶ÁÈ¡Ò»¸öÒÔ¿Õ°×½áÊøµÄ×Ö·û´® token
+	/// è¯»å–ä¸€ä¸ªä»¥ç©ºç™½ç»“æŸçš„å­—ç¬¦ä¸² token
 	/// </summary>
 	inline std::string readToken(const char*& p, const char* end) {
 		const char* begin = p;
@@ -127,9 +127,9 @@ void Model::loadMTL(const std::string& filepath) {
 }
 
 void Model::loadModel(std::string& filepath) {
-	//Ò»´ÎĞÔ°ÑÕû¸öÎÄ¼ş¶Á½øÄÚ´æ£¬ÔÙ×Ô½¨É¨Ãè¡£Ô­ÊµÏÖÃ¿ĞĞ½¨Ò»¸öÊäÈëÁ÷¶ÔÏó£¬Ã¿¸öÃæÆ¬¶¥µãÒıÓÃ
-	//»¹ÒªÔÙ½¨Ò»¸ö²¢µ÷ÓÃ×Ö·û´®×ªÕûÊı£»bathroom2 ÓĞ 124 ÍòÃæ¡¢Ô¼ 370 Íò¸ö¶¥µãÒıÓÃ£¬
-	//¹âÊÇ½¨Á÷Óë½âÎö¾ÍÕ¼ÁË¼ÓÔØÊ±¼äµÄ´óÍ·¡£
+	//ä¸€æ¬¡æ€§æŠŠæ•´ä¸ªæ–‡ä»¶è¯»è¿›å†…å­˜ï¼Œå†è‡ªå»ºæ‰«æã€‚åŸå®ç°æ¯è¡Œå»ºä¸€ä¸ªè¾“å…¥æµå¯¹è±¡ï¼Œæ¯ä¸ªé¢ç‰‡é¡¶ç‚¹å¼•ç”¨
+	//è¿˜è¦å†å»ºä¸€ä¸ªå¹¶è°ƒç”¨å­—ç¬¦ä¸²è½¬æ•´æ•°ï¼›bathroom2 æœ‰ 124 ä¸‡é¢ã€çº¦ 370 ä¸‡ä¸ªé¡¶ç‚¹å¼•ç”¨ï¼Œ
+	//å…‰æ˜¯å»ºæµä¸è§£æå°±å äº†åŠ è½½æ—¶é—´çš„å¤§å¤´ã€‚
 	std::ifstream file(filepath, std::ios::binary);
 	if (!file.is_open()) {
 		std::cerr << "Error: Could not open obj file " << filepath << "\n";
@@ -146,7 +146,7 @@ void Model::loadModel(std::string& filepath) {
 		content.resize(static_cast<size_t>(file.gcount()));
 	}
 
-	//ÏÈÊıÒ»±é¸÷¹Ø¼ü×ÖÊıÁ¿£¬ÓÃÓÚÔ¤ÁôÈİÁ¿£¨±ÜÃâÉÏ°ÙÍò´ÎÀ©Èİ°áÒÆ£©
+	//å…ˆæ•°ä¸€éå„å…³é”®å­—æ•°é‡ï¼Œç”¨äºé¢„ç•™å®¹é‡ï¼ˆé¿å…ä¸Šç™¾ä¸‡æ¬¡æ‰©å®¹æ¬ç§»ï¼‰
 	size_t vertexNum = 0, normalNum = 0, texcoordNum = 0, faceNum = 0;
 	for (size_t pos = 0, size = content.size(); pos < size;) {
 		size_t eol = content.find('\n', pos);
@@ -179,21 +179,21 @@ void Model::loadModel(std::string& filepath) {
 		if (p >= end || *p == '#') { continue; }
 
 		if (matchKeyword(p, end, "v")) {
-			//¶¥µã×ø±ê
+			//é¡¶ç‚¹åæ ‡
 			p += 1;
 			glm::vec3 vertex;
 			vertex.x = readFloat(p); vertex.y = readFloat(p); vertex.z = readFloat(p);
 			vertices.push_back(vertex);
 		}
 		else if (matchKeyword(p, end, "vn")) {
-			//·¨Ïß
+			//æ³•çº¿
 			p += 2;
 			glm::vec3 normal;
 			normal.x = readFloat(p); normal.y = readFloat(p); normal.z = readFloat(p);
 			m_normals.push_back(normal);
 		}
 		else if (matchKeyword(p, end, "vt")) {
-			//ÎÆÀí×ø±ê
+			//çº¹ç†åæ ‡
 			p += 2;
 			glm::vec2 texcoord;
 			texcoord.x = readFloat(p); texcoord.y = readFloat(p);
@@ -201,7 +201,7 @@ void Model::loadModel(std::string& filepath) {
 			m_texcoords.push_back(texcoord);
 		}
 		else if (matchKeyword(p, end, "f")) {
-			//Ãæ£º¶¥µãË÷Òı / ÎÆÀí×ø±êË÷Òı / ·¨ÏßË÷Òı£¨±¾ÏîÄ¿³¡¾°¾ùÎªÈı½ÇĞÎ¡¢a/b/c ĞÎÊ½£©
+			//é¢ï¼šé¡¶ç‚¹ç´¢å¼• / çº¹ç†åæ ‡ç´¢å¼• / æ³•çº¿ç´¢å¼•ï¼ˆæœ¬é¡¹ç›®åœºæ™¯å‡ä¸ºä¸‰è§’å½¢ã€a/b/c å½¢å¼ï¼‰
 			p += 1;
 			Face face;
 			face.materialName = currentMaterial;
@@ -228,14 +228,14 @@ void Model::loadModel(std::string& filepath) {
 			currentMat->faces.push_back(static_cast<int>(m_faces.size()) - 1);
 		}
 		else if (matchKeyword(p, end, "usemtl")) {
-			//Ê¹ÓÃ²ÄÖÊ
+			//ä½¿ç”¨æè´¨
 			p += 6;
 			skipBlank(p, end);
 			currentMaterial = readToken(p, end);
 			currentMat = &m_materials[currentMaterial];
 		}
 		else if (matchKeyword(p, end, "mtllib")) {
-			//²ÄÖÊ¿âÎÄ¼ş
+			//æè´¨åº“æ–‡ä»¶
 			p += 6;
 			skipBlank(p, end);
 			std::string mtlFilepath = readToken(p, end);
@@ -249,23 +249,6 @@ void Model::loadModel(std::string& filepath) {
 const glm::vec3* Model::getFace(int i) const {
 	return &m_faceVertices[static_cast<size_t>(i) * 3];
 }
-
-glm::vec2* Model::getUV(int i) const {
-	glm::vec2* faceUVs = new glm::vec2[3];
-	faceUVs[0] = m_texcoords[m_faces[i].indices[0].x];
-	faceUVs[1] = m_texcoords[m_faces[i].indices[1].x];
-	faceUVs[2] = m_texcoords[m_faces[i].indices[2].x];
-	return faceUVs;
-}
-
-glm::vec3* Model::getNormal(int i) const {
-	glm::vec3* faceNormals = new glm::vec3[3];
-	faceNormals[0] = m_normals[m_faces[i].indices[0].y];
-	faceNormals[1] = m_normals[m_faces[i].indices[1].y];
-	faceNormals[2] = m_normals[m_faces[i].indices[2].y];
-	return faceNormals;
-}
-
 void Model::calAxisParams() {
 	const size_t faceNum = m_faces.size();
 	m_axisCenters = new glm::vec3[faceNum];

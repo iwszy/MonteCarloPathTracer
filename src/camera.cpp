@@ -1,13 +1,13 @@
-#include "camera.hpp"
+ï»¿#include "camera.hpp"
 
 Camera::Camera(glm::vec3 eye, glm::vec3 lookAt, glm::vec3 up, float fov, int width, int height, float exposure) {
 	m_eye = eye;
 	m_exposure = exposure;
 	m_width = width;
 	m_height = height;
-	//Ïà»ú¿´Ïò·Ç z ÖáÊ± |dz| ¿ÉÄÜÎª 0£¬»áÈÃÉäÏß·½Ïò normalize(0) µÃµ½ NaN£¬
-	//½ø¶øÊ¹ BVH °üÎ§ºĞ±È½ÏÈ«²¿Ê§Ğ§¡¢±éÀúÍË»¯³ÉÖ¸Êı¼¶¼ÙËÀ¡£ÕâÀï¸ÄÓÃÕæÊµ¾àÀë£¬
-	//ÇÒÒòÎª m_top Óë·½ÏòÀïµÄ m_distance Í¬Ê±Ëõ·Å£¬ÉäÏß±¾Éí²»»á¸Ä±ä¡£
+	//ç›¸æœºçœ‹å‘é z è½´æ—¶ |dz| å¯èƒ½ä¸º 0ï¼Œä¼šè®©å°„çº¿æ–¹å‘ normalize(0) å¾—åˆ° NaNï¼Œ
+	//è¿›è€Œä½¿ BVH åŒ…å›´ç›’æ¯”è¾ƒå…¨éƒ¨å¤±æ•ˆã€éå†é€€åŒ–æˆæŒ‡æ•°çº§å‡æ­»ã€‚è¿™é‡Œæ”¹ç”¨çœŸå®è·ç¦»ï¼Œ
+	//ä¸”å› ä¸º m_top ä¸æ–¹å‘é‡Œçš„ m_distance åŒæ—¶ç¼©æ”¾ï¼Œå°„çº¿æœ¬èº«ä¸ä¼šæ”¹å˜ã€‚
 	m_distance = glm::length(lookAt - eye);
 	if (m_distance < 1e-6f) {
 		m_distance = 1.f;

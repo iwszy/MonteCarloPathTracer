@@ -1,4 +1,4 @@
-#include <chrono>
+ï»¿#include <chrono>
 #include <iostream>
 #include "pathTracer.hpp"
 
@@ -13,7 +13,7 @@ int main() {
 	model->loadModel(modelPath);
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> loadObjTime = end - start;
-    std::cout << "Ä£ÐÍÃæÊý: " << model->getFaceNum() << ", Ä£ÐÍµ¼ÈëÊ±¼ä: " << loadObjTime.count() << "ms" << "\n";
+    std::cout << "æ¨¡åž‹é¢æ•°: " << model->getFaceNum() << ", æ¨¡åž‹å¯¼å…¥æ—¶é—´: " << loadObjTime.count() << "ms" << "\n";
     Camera* camera = scene->loadXML(xmlPath, model);
 	if (camera == nullptr) {
         exit(1);
@@ -24,7 +24,7 @@ int main() {
     scene->buildBVH(model);
     end = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> buildBVHTime = end - start;
-    std::cout << "BVH½¨Á¢Ê±¼ä: " << buildBVHTime.count() << "ms" << "\n";
+    std::cout << "BVHå»ºç«‹æ—¶é—´: " << buildBVHTime.count() << "ms" << "\n";
 
     model->freeAxisParams();
     PathTracer pathTracer(scene, camera);
@@ -35,12 +35,11 @@ int main() {
     std::chrono::duration<double, std::milli> renderTime = end - start;
     if (renderTime.count() > 100000) {
         std::chrono::duration<double> renderSecondTime = end - start;
-        std::cout << "äÖÈ¾Ê±¼ä: " << renderSecondTime.count() << "s" << "\n";
+        std::cout << "æ¸²æŸ“æ—¶é—´: " << renderSecondTime.count() << "s" << "\n";
     }else {
-    	std::cout << "äÖÈ¾Ê±¼ä: " << renderTime.count() << "ms" << "\n";
+    	std::cout << "æ¸²æŸ“æ—¶é—´: " << renderTime.count() << "ms" << "\n";
     }
 
-    //pathTracer.bilateralFilter(5, 12, 60);
     pathTracer.save(model->getModelName());
     delete model;
     return 0;

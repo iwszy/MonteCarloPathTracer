@@ -1,4 +1,4 @@
-#include "sampler.hpp"
+ï»¿#include "sampler.hpp"
 #include <random>
 
 Sampler::Sampler() : m_reversedDirectionNumbers(getBitReversedDirections()), m_globalSeed(getGlobalSeed()) {
@@ -10,8 +10,6 @@ float Sampler::get1D(uint8_t dim) {
 }
 
 glm::vec2 Sampler::get2D(uint8_t dim) {
-    //float u = static_cast<float>(scramble(sobol(m_shuffledIndex, dim), hashCombine(m_seed, hash(dim)))) / (1ULL << 32);
-    //float v = static_cast<float>(scramble(sobol(m_shuffledIndex, dim + 1), hashCombine(m_seed, hash(dim + 1)))) / (1ULL << 32);
     return {get1D(dim), get1D(dim + 1)};
 }
 
@@ -40,9 +38,9 @@ uint32_t Sampler::sobol(uint32_t index, int dim) {
     return result;
 }
 
-// ¹Ì¶¨Ä¬ÈÏÖÖ×Ó£ºÍ¬Ò»³¡¾°¡¢Í¬Ò» spp µÄäÖÈ¾±ØĞë¿É¸´ÏÖ¡£
-// ´ËÇ°ÕâÀïÓÃ std::random_device£¬µ¼ÖÂÃ¿´ÎÔËĞĞµÄÔëÉùÊµÏÖ¶¼²»Í¬£¬A/B ¶Ô±ÈÓë»Ø¹é²âÊÔÎŞ·¨ÖğÏñËØ±È½Ï¡£
-// ĞèÒª»»Ò»×éÔëÉùÊµÏÖÊ±£¬¸ÄÕâ¸ö³£Á¿¼´¿É¡£
+// å›ºå®šé»˜è®¤ç§å­ï¼šåŒä¸€åœºæ™¯ã€åŒä¸€ spp çš„æ¸²æŸ“å¿…é¡»å¯å¤ç°ã€‚
+// æ­¤å‰è¿™é‡Œç”¨ std::random_deviceï¼Œå¯¼è‡´æ¯æ¬¡è¿è¡Œçš„å™ªå£°å®ç°éƒ½ä¸åŒï¼ŒA/B å¯¹æ¯”ä¸å›å½’æµ‹è¯•æ— æ³•é€åƒç´ æ¯”è¾ƒã€‚
+// éœ€è¦æ¢ä¸€ç»„å™ªå£°å®ç°æ—¶ï¼Œæ”¹è¿™ä¸ªå¸¸é‡å³å¯ã€‚
 uint32_t Sampler::getGlobalSeed() {
     static uint32_t globalSeed = 0u;
     return globalSeed;
@@ -57,7 +55,7 @@ std::array<std::array<uint32_t, 32>, Sampler::MAX_DIM> Sampler::getBitReversedDi
  std::array<std::array<uint32_t, 32>, Sampler::MAX_DIM> Sampler::generateBitReversedDirections() {
 	// Based on code and data from: https://web.maths.unsw.edu.au/~fkuo/sobol/
 	// The bits are also reversed at compile-time to optimize Owen-scrambling.
-	//´Ó"new-joe-kuo-6.21201"»ñÈ¡µÄµÚ2µ½9Î¬µÄ²ÎÊı
+	//ä»"new-joe-kuo-6.21201"è·å–çš„ç¬¬2åˆ°9ç»´çš„å‚æ•°
     constexpr uint32_t s[] = { 1, 2, 3, 3, 4, 4, 5, 5};
     constexpr uint32_t a[] = { 0, 1, 1, 2, 1, 4, 2, 4};
     constexpr uint32_t m[][s[std::size(s) - 1]] = {

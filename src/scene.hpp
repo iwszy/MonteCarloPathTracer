@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <unordered_map>
 #include <glm/glm.hpp>
@@ -7,7 +7,7 @@
 #include "light.hpp"
 
 /// <summary>
-/// ³¡¾°Àà£¬°üº¬³¡¾°µÄBVHÒÔ¼°¹âÔ´ĞÅÏ¢
+/// åœºæ™¯ç±»ï¼ŒåŒ…å«åœºæ™¯çš„BVHä»¥åŠå…‰æºä¿¡æ¯
 /// </summary>
 class Scene {
 public:
@@ -15,56 +15,56 @@ public:
 	~Scene();
 
 	/// <summary>
-	/// ´ÓxmlÖĞ¼ÓÔØ³¡¾°ĞÅÏ¢
+	/// ä»xmlä¸­åŠ è½½åœºæ™¯ä¿¡æ¯
 	/// </summary>
-	/// <param name="filepath">xmlÎÄ¼şÎ»ÖÃ</param>
-	/// <param name="model">Ä£ĞÍÀà</param>
-	/// <returns>Ïà»úÀà</returns>
+	/// <param name="filepath">xmlæ–‡ä»¶ä½ç½®</param>
+	/// <param name="model">æ¨¡å‹ç±»</param>
+	/// <returns>ç›¸æœºç±»</returns>
 	Camera* loadXML(const std::string& filepath, Model* model);
 	/// <summary>
-	/// ¹¹½¨BVH
+	/// æ„å»ºBVH
 	/// </summary>
-	/// <param name="model">Ä£ĞÍÀà</param>
+	/// <param name="model">æ¨¡å‹ç±»</param>
 	void buildBVH(Model* model);
 	/// <summary>
-	/// ¼ÆËãÉäÏßÓë³¡¾°µÄ½»µã
+	/// è®¡ç®—å°„çº¿ä¸åœºæ™¯çš„äº¤ç‚¹
 	/// </summary>
-	/// <param name="ray">ÒªÇó½»µÄÉäÏß</param>
-	/// <param name="intersection">½»µã£¬ÈôÉäÏßÎ´»÷ÖĞ³¡¾°ÔòÎŞĞ§</param>
-	/// <returns>ÉäÏßÊÇ·ñÓë³¡¾°ÓĞ½»µã</returns>
+	/// <param name="ray">è¦æ±‚äº¤çš„å°„çº¿</param>
+	/// <param name="intersection">äº¤ç‚¹ï¼Œè‹¥å°„çº¿æœªå‡»ä¸­åœºæ™¯åˆ™æ— æ•ˆ</param>
+	/// <returns>å°„çº¿æ˜¯å¦ä¸åœºæ™¯æœ‰äº¤ç‚¹</returns>
 	bool hit(Ray ray, Intersection& intersection) const;
 
 	/// <summary>
-	/// ¸ù¾İ²ÄÖÊÃû³Æ»ñÈ¡Ê¹ÓÃ¸Ã²ÄÖÊµÄ¹âÔ´
+	/// æ ¹æ®æè´¨åç§°è·å–ä½¿ç”¨è¯¥æè´¨çš„å…‰æº
 	/// </summary>
-	/// <param name="materialName">²ÄÖÊÃû³Æ</param>
-	/// <returns>Ê¹ÓÃ¸Ã²ÄÖÊµÄ¹âÔ´</returns>
+	/// <param name="materialName">æè´¨åç§°</param>
+	/// <returns>ä½¿ç”¨è¯¥æè´¨çš„å…‰æº</returns>
 	Light* getLight(const std::string& materialName) const { return m_lightMap.at(materialName); }
 	/// <summary>
-	/// »ñÈ¡³¡¾°ÖĞ¹âÔ´ÊıÁ¿ÊÇ·ñÎª0
+	/// è·å–åœºæ™¯ä¸­å…‰æºæ•°é‡æ˜¯å¦ä¸º0
 	/// </summary>
-	/// <returns>³¡¾°ÖĞ¹âÔ´ÊıÁ¿ÊÇ·ñÎª0</returns>
+	/// <returns>åœºæ™¯ä¸­å…‰æºæ•°é‡æ˜¯å¦ä¸º0</returns>
 	bool isLightEmpty() const { return m_lights.empty(); }
 	/// <summary>
-	/// »ñÈ¡±³¾°ÑÕÉ«
+	/// è·å–èƒŒæ™¯é¢œè‰²
 	/// </summary>
-	/// <returns>±³¾°ÑÕÉ«</returns>
+	/// <returns>èƒŒæ™¯é¢œè‰²</returns>
 	glm::vec3 getBackground() const { return m_background; }
-	/// É«µ÷ÇúÏß£º0=ÏßĞÔ½Ø¶Ï(×÷Òµ²Î¿¼Í¼¹ÜÏß) 1=ACES 2=Reinhard
+	/// è‰²è°ƒæ›²çº¿ï¼š0=çº¿æ€§æˆªæ–­(ä½œä¸šå‚è€ƒå›¾ç®¡çº¿) 1=ACES 2=Reinhard
 	int getTonemap() const { return m_tonemap; }
 	/// <summary>
-	/// »ñÈ¡³¡¾°ÖĞµÄ¹âÔ´Êı×é
+	/// è·å–åœºæ™¯ä¸­çš„å…‰æºæ•°ç»„
 	/// </summary>
-	/// <returns>³¡¾°ÖĞµÄ¹âÔ´Êı×é</returns>
+	/// <returns>åœºæ™¯ä¸­çš„å…‰æºæ•°ç»„</returns>
 	std::vector<Light*>& getLights() { return m_lights; }
 
 private:
 	/// <summary>
-	/// ¹âÔ´Êı×é
+	/// å…‰æºæ•°ç»„
 	/// </summary>
 	std::vector<Light*> m_lights;
 	/// <summary>
-	/// ²ÄÖÊÃû³Æµ½¹âÔ´µÄÓ³Éä
+	/// æè´¨åç§°åˆ°å…‰æºçš„æ˜ å°„
 	/// </summary>
 	std::unordered_map<std::string, Light*> m_lightMap;
 	/// <summary>
@@ -72,7 +72,7 @@ private:
 	/// </summary>
 	std::unique_ptr<BVH> m_bvh;
 	/// <summary>
-	/// ±³¾°ÑÕÉ«
+	/// èƒŒæ™¯é¢œè‰²
 	/// </summary>
 	glm::vec3 m_background;
 	int m_tonemap = 1;

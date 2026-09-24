@@ -1,4 +1,4 @@
-#include "scene.hpp"
+ï»¿#include "scene.hpp"
 #include <iostream>
 #include <sstream>
 #include <xml/tinyxml2.h>
@@ -28,7 +28,7 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 		return nullptr;
 	}
 	if (model->getFaceNum() == 0) {
-		//Ä£ĞÍÎª¿ÕÍ¨³£ÒâÎ¶×Å obj Â·¾¶Ğ´´í»òÎÄ¼ş´ò²»¿ª£»¼ÌĞøÖ´ĞĞ»áÔÚÈ¡²ÄÖÊÊ±Å×Òì³£
+		//æ¨¡å‹ä¸ºç©ºé€šå¸¸æ„å‘³ç€ obj è·¯å¾„å†™é”™æˆ–æ–‡ä»¶æ‰“ä¸å¼€ï¼›ç»§ç»­æ‰§è¡Œä¼šåœ¨å–æè´¨æ—¶æŠ›å¼‚å¸¸
 		std::cerr << "Error: model has no face, please check the obj path\n";
 		return nullptr;
 	}
@@ -40,9 +40,9 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	int width = cameraElement->IntAttribute("width");
 	int height = cameraElement->IntAttribute("height");
 	float fov = cameraElement->FloatAttribute("fovy");
-	//Ïà»úÆØ¹â£º¿ÉÑ¡ÊôĞÔ£¬È±Ê¡ÓÃÄ¬ÈÏÖµ£¨²»Í¬³¡¾°²Î¿¼Í¼µÄÆØ¹â±¾À´¾Í²»Í¬£¬ÕâÀïÔÊĞíÖğ³¡¾°Ö¸¶¨£©
+	//ç›¸æœºæ›å…‰ï¼šå¯é€‰å±æ€§ï¼Œç¼ºçœç”¨é»˜è®¤å€¼ï¼ˆä¸åŒåœºæ™¯å‚è€ƒå›¾çš„æ›å…‰æœ¬æ¥å°±ä¸åŒï¼Œè¿™é‡Œå…è®¸é€åœºæ™¯æŒ‡å®šï¼‰
 	float exposure = cameraElement->FloatAttribute("exposure", DEFAULT_EXPOSURE);
-	//É«µ÷ÇúÏß£ºÄ¬ÈÏ ACES£»×÷Òµ²Î¿¼Í¼ÊÇÏßĞÔ½Ø¶Ï¹ÜÏß£¬¶ÔÓ¦³¡¾°ÔÚ xml ÀïĞ´ tonemap="linear"
+	//è‰²è°ƒæ›²çº¿ï¼šé»˜è®¤ ACESï¼›ä½œä¸šå‚è€ƒå›¾æ˜¯çº¿æ€§æˆªæ–­ç®¡çº¿ï¼Œå¯¹åº”åœºæ™¯åœ¨ xml é‡Œå†™ tonemap="linear"
 	//mixed-material specular strength 0..1: F0 = mix(0.04, Ks, blend); 0.25 = compromise of the two references,
 	//per-scene override via <camera specularBlend="..."> (bathroom2 uses 0).
 	Intersection::setSpecularBlend(cameraElement->FloatAttribute("specularBlend", 0.25f));
@@ -73,7 +73,7 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 		up.z = upElement->FloatAttribute("z");
 	}
 
-	//±³¾°(»·¾³)·øÉä¶È£º¿ÉÑ¡£¬È±Ê¡È«ºÚ¡£¾ùÔÈ»·¾³ÊÇ°×Â¯/½âÎöÑéÖ¤³¡¾°µÄÇ°Ìá¡£
+	//èƒŒæ™¯(ç¯å¢ƒ)è¾å°„åº¦ï¼šå¯é€‰ï¼Œç¼ºçœå…¨é»‘ã€‚å‡åŒ€ç¯å¢ƒæ˜¯ç™½ç‚‰/è§£æéªŒè¯åœºæ™¯çš„å‰æã€‚
 	if (XMLElement* backgroundElement = root->FirstChildElement("background")) {
 		const char* backgroundStr = backgroundElement->Attribute("radiance");
 		if (backgroundStr != nullptr) {

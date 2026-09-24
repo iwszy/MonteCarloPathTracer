@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <mutex>
 #include "scene.hpp"
@@ -7,13 +7,13 @@
 #include "sampler.hpp"
 
 /// <summary>
-/// ×î´óµİ¹éÉî¶È
+/// æœ€å¤§é€’å½’æ·±åº¦
 /// </summary>
 constexpr int MAX_DEPTH = 8;
 
 
 /// <summary>
-/// Â·¾¶×·×ÙºËĞÄÀà£¬ÊµÏÖÂ·¾¶×·×Ù
+/// è·¯å¾„è¿½è¸ªæ ¸å¿ƒç±»ï¼Œå®ç°è·¯å¾„è¿½è¸ª
 /// </summary>
 class PathTracer {
 public:
@@ -21,97 +21,96 @@ public:
 	~PathTracer();
 
 	/// <summary>
-	/// äÖÈ¾Õû¸ö³¡¾°
+	/// æ¸²æŸ“æ•´ä¸ªåœºæ™¯
 	/// </summary>
 	void render();
-	void bilateralFilter(int k, float sigmaD, float sigmaR);
 	/// <summary>
-	/// ±£´æäÖÈ¾Íê³ÉºóµÄäÖÈ¾Í¼Æ¬
+	/// ä¿å­˜æ¸²æŸ“å®Œæˆåçš„æ¸²æŸ“å›¾ç‰‡
 	/// </summary>
-	/// <param name="modelName">Ä£ĞÍÃû³Æ</param>
+	/// <param name="modelName">æ¨¡å‹åç§°</param>
 	/// <summary>
-	/// ÉèÖÃÆØ¹âÏµÊı£¨äÖÈ¾Íê³ÉºóÖ»ÒªÖØĞÂ developImage() ¼´¿É»»ÆØ¹â³öÍ¼£¬ÎŞĞèÖØĞÂäÖÈ¾£©
+	/// è®¾ç½®æ›å…‰ç³»æ•°ï¼ˆæ¸²æŸ“å®Œæˆååªè¦é‡æ–° developImage() å³å¯æ¢æ›å…‰å‡ºå›¾ï¼Œæ— éœ€é‡æ–°æ¸²æŸ“ï¼‰
 	/// </summary>
 	void setExposure(float exposure) { m_exposure = exposure; }
 	/// <summary>
-	/// »ñÈ¡µ±Ç°ÆØ¹âÏµÊı
+	/// è·å–å½“å‰æ›å…‰ç³»æ•°
 	/// </summary>
 	float getExposure() const { return m_exposure; }
 	/// <summary>
-	/// °ÑÏßĞÔ HDR »º³åÏÔÓ°Îª 8bit ÏÔÊ¾Í¼£ºÆØ¹â -> ACES É«µ÷Ó³Éä -> sRGB ±àÂë
+	/// æŠŠçº¿æ€§ HDR ç¼“å†²æ˜¾å½±ä¸º 8bit æ˜¾ç¤ºå›¾ï¼šæ›å…‰ -> ACES è‰²è°ƒæ˜ å°„ -> sRGB ç¼–ç 
 	/// </summary>
 	void developImage() const;
 	/// <summary>
-	/// Êä³öÏßĞÔ HDR ½á¹û£¨Radiance .hdr£©£¬±ãÓÚºóÆÚ×ÔĞĞµ÷Õû
+	/// è¾“å‡ºçº¿æ€§ HDR ç»“æœï¼ˆRadiance .hdrï¼‰ï¼Œä¾¿äºåæœŸè‡ªè¡Œè°ƒæ•´
 	/// </summary>
 	void saveHDR(const std::string& modelName) const;
 	void save(std::string modelName) const;
 private:
 	/// <summary>
-	/// ³¡¾°Àà
+	/// åœºæ™¯ç±»
 	/// </summary>
 	Scene* m_scene;
 	/// <summary>
-	/// ÕÕÏà»úÀà
+	/// ç…§ç›¸æœºç±»
 	/// </summary>
 	Camera* m_camera;
 	/// <summary>
-	/// ²ÉÑùÆ÷Àà
+	/// é‡‡æ ·å™¨ç±»
 	/// </summary>
 	Sampler* m_sampler;
 	
 	/// <summary>
-	/// Ã¿ÏñËØ²ÉÑùµÄ¹âÏßÊı
+	/// æ¯åƒç´ é‡‡æ ·çš„å…‰çº¿æ•°
 	/// </summary>
 	int m_spp;
 	/// <summary>
-	/// äÖÈ¾Í¼ÏñµÄ´æ´¢Î»ÖÃ
+	/// æ¸²æŸ“å›¾åƒçš„å­˜å‚¨ä½ç½®
 	/// </summary>
 	unsigned char* m_image;
 
 	/// <summary>
-	/// ÏßĞÔ HDR ÀÛ¼Ó»º³å£¨3 ¸ö float / ÏñËØ£©£ºäÖÈ¾½á¹ûÏÈÎŞËğÀÛ¼Óµ½ÕâÀï
+	/// çº¿æ€§ HDR ç´¯åŠ ç¼“å†²ï¼ˆ3 ä¸ª float / åƒç´ ï¼‰ï¼šæ¸²æŸ“ç»“æœå…ˆæ— æŸç´¯åŠ åˆ°è¿™é‡Œ
 	/// </summary>
 	float* m_hdrImage;
 	/// <summary>
-	/// Ïà»úÆØ¹âÏµÊı£¨ÎïÀí·øÉäÁÁ¶È -> É«µ÷Ó³ÉäÊäÈë£©
+	/// ç›¸æœºæ›å…‰ç³»æ•°ï¼ˆç‰©ç†è¾å°„äº®åº¦ -> è‰²è°ƒæ˜ å°„è¾“å…¥ï¼‰
 	/// </summary>
 	float m_exposure;
 
 	/// <summary>
-	/// äÖÈ¾ÏñËØ¿éÖĞÏñËØ
+	/// æ¸²æŸ“åƒç´ å—ä¸­åƒç´ 
 	/// </summary>
-	/// <param name="x">ÏñËØ¿éµÄx×ø±ê</param>
-	/// <param name="y">ÏñËØ¿éµÄy×ø±ê</param>
+	/// <param name="x">åƒç´ å—çš„xåæ ‡</param>
+	/// <param name="y">åƒç´ å—çš„yåæ ‡</param>
 	void renderPixel(int x, int y);
 	/// <summary>
-	/// ¸ú×Ù·¢ÉäµÄ¹âÏß
+	/// è·Ÿè¸ªå‘å°„çš„å…‰çº¿
 	/// </summary>
-	/// <param name="ray">ÕıÔÚ×·×ÙµÄ¹âÏß</param>
-	/// <param name="depth">µ±Ç°Éî¶È</param>
-	/// <param name="bsdfPDF">Éú³É¸Ã¹âÏßµÄ BSDF ²ÉÑù PDF£¬ÓÃÓÚ BSDF ²ßÂÔÃüÖĞ¹âÔ´Ê±¼ÆËã MIS È¨ÖØ</param>
-	/// <returns>ÕâÌõ¹âÏß»÷ÖĞÎ»ÖÃµÄÑÕÉ«Öµ</returns>
+	/// <param name="ray">æ­£åœ¨è¿½è¸ªçš„å…‰çº¿</param>
+	/// <param name="depth">å½“å‰æ·±åº¦</param>
+	/// <param name="bsdfPDF">ç”Ÿæˆè¯¥å…‰çº¿çš„ BSDF é‡‡æ · PDFï¼Œç”¨äº BSDF ç­–ç•¥å‘½ä¸­å…‰æºæ—¶è®¡ç®— MIS æƒé‡</param>
+	/// <returns>è¿™æ¡å…‰çº¿å‡»ä¸­ä½ç½®çš„é¢œè‰²å€¼</returns>
 	glm::vec3 trace(Ray ray, int depth, float bsdfPDF = 0.f);
 	/// <summary>
-	/// Ö±½Ó¹âÕÕ¼ÆËã
+	/// ç›´æ¥å…‰ç…§è®¡ç®—
 	/// </summary>
-	///	<param name="wo">¹âÏßÈëÉä·½Ïò</param>
-	/// <param name="intersection">¹âÏßÓë³¡¾°µÄ½»µã</param>
-	/// <returns>Ö±½Ó¹âÕÕµÄ¼ÆËã½á¹û</returns>
+	///	<param name="wo">å…‰çº¿å…¥å°„æ–¹å‘</param>
+	/// <param name="intersection">å…‰çº¿ä¸åœºæ™¯çš„äº¤ç‚¹</param>
+	/// <returns>ç›´æ¥å…‰ç…§çš„è®¡ç®—ç»“æœ</returns>
 	glm::vec3 sampleDirectLight(glm::vec3 wo, Intersection& intersection);
 
 	/// <summary>
-	/// ¹âÔ´²ÉÑù²ßÂÔ¶Ô"ÃüÖĞ¸Ã¹âÔ´"ÕâÒ»·½ÏòµÄÁ¢Ìå½Ç PDF£¬¼´ d^2 / (A * cos¦È)
+	/// å…‰æºé‡‡æ ·ç­–ç•¥å¯¹"å‘½ä¸­è¯¥å…‰æº"è¿™ä¸€æ–¹å‘çš„ç«‹ä½“è§’ PDFï¼Œå³ d^2 / (A * cosÎ¸)
 	/// </summary>
-	/// <param name="ray">ÃüÖĞ¹âÔ´µÄ¹âÏß£¬ÆäÔ­µã¼´ÉÏÒ»¸ö¶¥µã</param>
-	/// <param name="intersection">¹âÔ´ÃæÉÏµÄ½»µã</param>
-	/// <returns>¸Ã·½ÏòÉÏµÄÁ¢Ìå½Ç PDF</returns>
+	/// <param name="ray">å‘½ä¸­å…‰æºçš„å…‰çº¿ï¼Œå…¶åŸç‚¹å³ä¸Šä¸€ä¸ªé¡¶ç‚¹</param>
+	/// <param name="intersection">å…‰æºé¢ä¸Šçš„äº¤ç‚¹</param>
+	/// <returns>è¯¥æ–¹å‘ä¸Šçš„ç«‹ä½“è§’ PDF</returns>
 	float sampleLightPdf(const Ray& ray, const Intersection& intersection) const;
 	/// <summary>
-	/// Ê¹ÓÃÃİÆô·¢Ê½¼ÆËãÁ½¸öPDFµÄMISÈ¨ÖØ£¬ÃİÖ¸ÊıÎª2
+	/// ä½¿ç”¨å¹‚å¯å‘å¼è®¡ç®—ä¸¤ä¸ªPDFçš„MISæƒé‡ï¼Œå¹‚æŒ‡æ•°ä¸º2
 	/// </summary>
-	/// <param name="pdf1">µÚÒ»¸öPDF</param>
-	/// <param name="pdf2">µÚ¶ş¸öPDF</param>
-	/// <returns>MISÈ¨ÖØ</returns>
+	/// <param name="pdf1">ç¬¬ä¸€ä¸ªPDF</param>
+	/// <param name="pdf2">ç¬¬äºŒä¸ªPDF</param>
+	/// <returns>MISæƒé‡</returns>
 	float powerHeuristic(float pdf1, float pdf2);
 };

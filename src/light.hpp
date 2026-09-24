@@ -1,72 +1,72 @@
-#pragma once
+ï»¿#pragma once
 
 #include <vector>
 #include <glm/glm.hpp>
 #include "model.hpp"
 
 /// <summary>
-/// ¹âÔ´Àà£¬½öÖ§³ÖÃæ¹âÔ´
+/// å…‰æºç±»ï¼Œä»…æ”¯æŒé¢å…‰æº
 /// </summary>
 class Light {
 public:
     Light(const std::vector<int>& faces, const glm::vec3& radiance, Model* model);
 
     /// <summary>
-    /// ¼ÆËãÖ¸¶¨·½ÏòÓëÖ¸¶¨ÃæµÄ·¨ÏßµÄ¼Ð½ÇµÄÓàÏÒÖµ
+    /// è®¡ç®—æŒ‡å®šæ–¹å‘ä¸ŽæŒ‡å®šé¢çš„æ³•çº¿çš„å¤¹è§’çš„ä½™å¼¦å€¼
     /// </summary>
-    /// <param name="face">ÃæË÷Òý£¬´ËË÷ÒýÖ¸µÄÊÇ¸ÃÃæÔÚÄ£ÐÍÀàÖÐËùÓÐÃæÖÐµÄË÷Òý</param>
-    /// <param name="direction">Òª¼ÆËãÓàÏÒÖµµÄ·½Ïò</param>
-    /// <returns>Ö¸¶¨·½ÏòÓëÖ¸¶¨Ãæ·¨ÏßµÄ¼Ð½ÇµÄÓàÏÒÖµ</returns>
+    /// <param name="face">é¢ç´¢å¼•ï¼Œæ­¤ç´¢å¼•æŒ‡çš„æ˜¯è¯¥é¢åœ¨æ¨¡åž‹ç±»ä¸­æ‰€æœ‰é¢ä¸­çš„ç´¢å¼•</param>
+    /// <param name="direction">è¦è®¡ç®—ä½™å¼¦å€¼çš„æ–¹å‘</param>
+    /// <returns>æŒ‡å®šæ–¹å‘ä¸ŽæŒ‡å®šé¢æ³•çº¿çš„å¤¹è§’çš„ä½™å¼¦å€¼</returns>
     float getCos(int face, glm::vec3 direction) const;
     /// <summary>
-    /// ÔÚ¹âÔ´±íÃæËæ»ú²ÉÑùÒ»¸öµã£¬²»Í¬ÃæµÄ²ÉÑù¸ÅÂÊ=¸ÃÃæÃæ»ý / ¹âÔ´×ÜÃæ»ý
+    /// åœ¨å…‰æºè¡¨é¢éšæœºé‡‡æ ·ä¸€ä¸ªç‚¹ï¼Œä¸åŒé¢çš„é‡‡æ ·æ¦‚çŽ‡=è¯¥é¢é¢ç§¯ / å…‰æºæ€»é¢ç§¯
     /// </summary>
-    /// <param name="rnd">Ñ¡ÔñÃæµÄËæ»úÖµ</param>
-    /// <param name="uv">ÔÚÃæÉÏ²ÉÑùµãµÄËæ»úÖµ</param>
-    /// <param name="face">ËùÑ¡ÔñµÄÃæ</param>
-    /// <returns>²ÉÑùµãÎ»ÖÃ</returns>
+    /// <param name="rnd">é€‰æ‹©é¢çš„éšæœºå€¼</param>
+    /// <param name="uv">åœ¨é¢ä¸Šé‡‡æ ·ç‚¹çš„éšæœºå€¼</param>
+    /// <param name="face">æ‰€é€‰æ‹©çš„é¢</param>
+    /// <returns>é‡‡æ ·ç‚¹ä½ç½®</returns>
     glm::vec3 sample(float rnd, glm::vec2 uv, int& face) const;
 
     /// <summary>
-    /// »ñÈ¡¹âÔ´×ÜÃæ»ý
+    /// èŽ·å–å…‰æºæ€»é¢ç§¯
     /// </summary>
-    /// <returns>¹âÔ´×ÜÃæ»ý</returns>
+    /// <returns>å…‰æºæ€»é¢ç§¯</returns>
     float getArea() const { return m_area; }
     /// <summary>
-    /// »ñÈ¡¹âÔ´µÄradiance
+    /// èŽ·å–å…‰æºçš„radiance
     /// </summary>
-    /// <returns>¹âÔ´µÄradiance</returns>
+    /// <returns>å…‰æºçš„radiance</returns>
     glm::vec3 getRadiance() const { return m_radiance; }
 private:
     /// <summary>
-    /// ¹âÔ´×ÜÃæ»ý
+    /// å…‰æºæ€»é¢ç§¯
     /// </summary>
     float m_area;
     /// <summary>
-    /// ¹âÔ´radiance
+    /// å…‰æºradiance
     /// </summary>
     glm::vec3 m_radiance;
     /// <summary>
-    /// ÊôÓÚ¸Ã¹âÔ´µÄÃæµÄ¼¯ºÏ
+    /// å±žäºŽè¯¥å…‰æºçš„é¢çš„é›†åˆ
     /// </summary>
     std::vector<int> m_faces;
     /// <summary>
-    /// ¸Ã¹âÔ´ËùÓÐÃæµÄÑ¡ÔñÈ¨ÖØ
+    /// è¯¥å…‰æºæ‰€æœ‰é¢çš„é€‰æ‹©æƒé‡
     /// </summary>
     std::vector<float> m_faceWeights;
     /// <summary>
-    /// Ä£ÐÍÀà
+    /// æ¨¡åž‹ç±»
     /// </summary>
     Model* m_model;
 
     /// <summary>
-    /// ¸ù¾ÝËæ»úÖµÒÔ¼°ÃæµÄÑ¡ÔñÈ¨ÖØÑ¡ÔñÒ»¸öÃæ
+    /// æ ¹æ®éšæœºå€¼ä»¥åŠé¢çš„é€‰æ‹©æƒé‡é€‰æ‹©ä¸€ä¸ªé¢
     /// </summary>
-    /// <param name="rnd">0-1Ö®¼äµÄËæ»úÖµ</param>
-    /// <returns>ËùÑ¡ÔñµÄÃæµÄË÷Òý£¬´ËË÷ÒýÖ¸µÄÊÇ¸ÃÃæÔÚÄ£ÐÍÀàÖÐËùÓÐÃæÖÐµÄË÷Òý</returns>
+    /// <param name="rnd">0-1ä¹‹é—´çš„éšæœºå€¼</param>
+    /// <returns>æ‰€é€‰æ‹©çš„é¢çš„ç´¢å¼•ï¼Œæ­¤ç´¢å¼•æŒ‡çš„æ˜¯è¯¥é¢åœ¨æ¨¡åž‹ç±»ä¸­æ‰€æœ‰é¢ä¸­çš„ç´¢å¼•</returns>
     int selectFace(float rnd) const;
     /// <summary>
-    /// ¼ÆËã¸÷ÃæµÄÑ¡Ôñ¸ÅÂÊ
+    /// è®¡ç®—å„é¢çš„é€‰æ‹©æ¦‚çŽ‡
     /// </summary>
     void calculateWeight();
 };

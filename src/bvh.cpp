@@ -1,12 +1,11 @@
-#include "bvh.hpp"
+ï»¿#include "bvh.hpp"
 
 #include <algorithm>
 #include <limits>
-#include <stack>
 
 BVH::BVH(int* triangles, int n, Model* model) {
 	m_model = model;
-	//ÓÉÓÚÃ¿¸ö½ÚµãÔÚ¹¹½¨Ç°ÒÑ¾­ËãºÃÁË°üÎ§ºĞ£¬¹ÊµÚÒ»¸ö½ÚµãĞèÔÚµ÷ÓÃ¹¹½¨º¯ÊıÇ°µ¥¶À¼ÆËã
+	//ç”±äºæ¯ä¸ªèŠ‚ç‚¹åœ¨æ„å»ºå‰å·²ç»ç®—å¥½äº†åŒ…å›´ç›’ï¼Œæ•…ç¬¬ä¸€ä¸ªèŠ‚ç‚¹éœ€åœ¨è°ƒç”¨æ„å»ºå‡½æ•°å‰å•ç‹¬è®¡ç®—
 	float min[3], max[3];
 	min[0] = std::numeric_limits<float>::max(); min[1] = min[0]; min[2] = min[0];
 	max[0] = std::numeric_limits<float>::lowest(); max[1] = max[0]; max[2] = max[0];
@@ -20,24 +19,24 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 	m_nodes.emplace_back();
 	m_nodes[nodeIndex].bbox.set(min, max);
 	if (right - left < MAX_TRIANGLE) {
-		//½Úµã°üº¬µÄÈı½ÇĞÎÊıÁ¿²»´óÓÚãĞÖµÔò×÷ÎªÒ¶×Ó½Úµã
+		//èŠ‚ç‚¹åŒ…å«çš„ä¸‰è§’å½¢æ•°é‡ä¸å¤§äºé˜ˆå€¼åˆ™ä½œä¸ºå¶å­èŠ‚ç‚¹
 		m_nodes[nodeIndex].triangleOffset = static_cast<uint32_t>(m_triangles.size());
 		for (int i = left; i <= right; i++) {
 			m_triangles.emplace_back(triangles[i]);
 		}
 		m_nodes[nodeIndex].triangleCount = static_cast<uint32_t>(m_triangles.size()) - m_nodes[nodeIndex].triangleOffset;
 	} else {
-		//Ê¹ÓÃ±íÃæ»ıÆô·¢Ê½£¨SAH£©¹¹½¨BVH£¬ÅĞ¶Ï10Ìõ»®·ÖÖá
-		//µ¥±é·ÖÏä SAH£ºÓëÔ­ÏÈ¡°Ã¿¸öºòÑ¡Æ½Ãæ¸÷×öÒ»´Î std::partition + ÖğÔªËØÖØËã°üÎ§ºĞ¡±ÊıÑ§µÈ¼Û
-		//£¨Í¬ÑùµÄ 11 ¸öºòÑ¡Æ½Ãæ¡¢Í¬ÑùµÄ´ú¼Û¹«Ê½Óë±È½ÏË³Ğò£©£¬µ«°ÑÃ¿Öá 10 ´Î O(n) »®·Ö + 30 ´ÎÖØËã°üÎ§ºĞ
-		//»»³É 1 ´Î O(n) ¹éÏä + Ã¿ÖáÁ½´Î O(11) Ç°ºó×ºÉ¨Ãè£¬BVH ¹¹½¨ºÄÊ±Ô¼½µÒ»¸öÊıÁ¿¼¶¡£
+		//ä½¿ç”¨è¡¨é¢ç§¯å¯å‘å¼ï¼ˆSAHï¼‰æ„å»ºBVHï¼Œåˆ¤æ–­10æ¡åˆ’åˆ†è½´
+		//å•éåˆ†ç®± SAHï¼šä¸åŸå…ˆâ€œæ¯ä¸ªå€™é€‰å¹³é¢å„åšä¸€æ¬¡ std::partition + é€å…ƒç´ é‡ç®—åŒ…å›´ç›’â€æ•°å­¦ç­‰ä»·
+		//ï¼ˆåŒæ ·çš„ 11 ä¸ªå€™é€‰å¹³é¢ã€åŒæ ·çš„ä»£ä»·å…¬å¼ä¸æ¯”è¾ƒé¡ºåºï¼‰ï¼Œä½†æŠŠæ¯è½´ 10 æ¬¡ O(n) åˆ’åˆ† + 30 æ¬¡é‡ç®—åŒ…å›´ç›’
+		//æ¢æˆ 1 æ¬¡ O(n) å½’ç®± + æ¯è½´ä¸¤æ¬¡ O(11) å‰åç¼€æ‰«æï¼ŒBVH æ„å»ºè€—æ—¶çº¦é™ä¸€ä¸ªæ•°é‡çº§ã€‚
 		constexpr int BIN_NUM = 11;
 		float leftMin[3], leftMax[3], rightMin[3], rightMax[3];
 		int mid = 0, finalDim = 0, isSame = 1;
 		float minCost = std::numeric_limits<float>::max();
 		float minCenter[3], maxCenter[3], step[3];
 		for (int dim = 0; dim < 3; dim++) { minCenter[dim] = std::numeric_limits<float>::max(); maxCenter[dim] = std::numeric_limits<float>::lowest(); }
-		//Ò»ÌËÉ¨ÃèÍ¬Ê±È¡ÈıÖáÖĞĞÄµÄ×îĞ¡/×î´óÖµ£¨Óë std::min_element / max_element ½á¹ûÒ»ÖÂ£©
+		//ä¸€è¶Ÿæ‰«æåŒæ—¶å–ä¸‰è½´ä¸­å¿ƒçš„æœ€å°/æœ€å¤§å€¼ï¼ˆä¸ std::min_element / max_element ç»“æœä¸€è‡´ï¼‰
 		for (int i = left; i <= right; i++) {
 			int t = triangles[i];
 			for (int dim = 0; dim < 3; dim++) {
@@ -51,8 +50,8 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 			if (glm::abs(step[dim]) > EPSILON) isSame = 0;
 		}
 		if (isSame) {
-			//µ±Ç°·¶Î§ÄÚËùÓĞÈı½ÇĞÎµÄÖĞĞÄÎ»ÖÃÍêÈ«ÏàÍ¬£º·ÖÏäÎŞ·¨·Ö¿ª£¨´ú¼ÛºãÎª 0£¬mid »áÍ£ÔÚ 0£©
-			//Òò´ËÇ¿ÖÆ°´ÖĞÎ»ÊıÇĞ·Ö£¬²¢¹Ì¶¨ÓÃ x Öá£¬±ÜÃâÎŞÏŞµİ¹é
+			//å½“å‰èŒƒå›´å†…æ‰€æœ‰ä¸‰è§’å½¢çš„ä¸­å¿ƒä½ç½®å®Œå…¨ç›¸åŒï¼šåˆ†ç®±æ— æ³•åˆ†å¼€ï¼ˆä»£ä»·æ’ä¸º 0ï¼Œmid ä¼šåœåœ¨ 0ï¼‰
+			//å› æ­¤å¼ºåˆ¶æŒ‰ä¸­ä½æ•°åˆ‡åˆ†ï¼Œå¹¶å›ºå®šç”¨ x è½´ï¼Œé¿å…æ— é™é€’å½’
 			mid = (left + right) / 2;
 			finalDim = 0;
 			calculateBoundingBox(triangles, left, mid, leftMin, leftMax);
@@ -62,8 +61,8 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 			for (int dim = 0; dim < 3; dim++) {
 				plane[dim][0] = minCenter[dim];
 				for (int k = 1; k < BIN_NUM; k++) {
-					//ºòÑ¡Æ½Ãæ°´Ô­ÏÈ axis += step µÄ·½Ê½Öğ²½ÀÛ¼Ó£¬Á¬¸¡µãÀÛ¼ÓÎó²îÒ»Æğ¸´ÏÖ£¬
-					//Ê¹·ÖÏä±ß½çÓëÀÏÊµÏÖÖğÎ»Ò»ÖÂ
+					//å€™é€‰å¹³é¢æŒ‰åŸå…ˆ axis += step çš„æ–¹å¼é€æ­¥ç´¯åŠ ï¼Œè¿æµ®ç‚¹ç´¯åŠ è¯¯å·®ä¸€èµ·å¤ç°ï¼Œ
+					//ä½¿åˆ†ç®±è¾¹ç•Œä¸è€å®ç°é€ä½ä¸€è‡´
 					plane[dim][k] = plane[dim][k - 1] + step[dim];
 				}
 			}
@@ -75,7 +74,7 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 						binMin[dim][b][d2] = std::numeric_limits<float>::max();
 						binMax[dim][b][d2] = std::numeric_limits<float>::lowest();
 					}
-			//Ò»´Î¹éÏä±éÀú£º°´ÈıÖá¸÷×Ô¶¨Î»ÏäºÅ£¬²¢ÀÛ¼Æ¸ÃÏäµÄ°üÎ§ºĞÓë¼ÆÊı
+			//ä¸€æ¬¡å½’ç®±éå†ï¼šæŒ‰ä¸‰è½´å„è‡ªå®šä½ç®±å·ï¼Œå¹¶ç´¯è®¡è¯¥ç®±çš„åŒ…å›´ç›’ä¸è®¡æ•°
 			for (int i = left; i <= right; i++) {
 				int t = triangles[i];
 				for (int dim = 0; dim < 3; dim++) {
@@ -94,8 +93,8 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 			}
 			for (int dim = 0; dim < 3; dim++) {
 				if (glm::abs(step[dim]) <= EPSILON) continue;
-				//ºó×º£ºÏä i..10 µÄ²¢¼¯£¬¼´ºòÑ¡Æ½Ãæ i ÓÒ²à£»Ç°×º£ºÏä 0..i-1£¬¼´×ó²à¡£
-				//×óÓÒÁ½²àµÄ°üÎ§ºĞ¶¼ÊÇÍ¬Ò»ÅúÃæÆ¬°üÎ§ºĞµÄ²¢¼¯£¬Òò´ËÓëÔ­ÊµÏÖÖğÎ»ÏàÍ¬¡£
+				//åç¼€ï¼šç®± i..10 çš„å¹¶é›†ï¼Œå³å€™é€‰å¹³é¢ i å³ä¾§ï¼›å‰ç¼€ï¼šç®± 0..i-1ï¼Œå³å·¦ä¾§ã€‚
+				//å·¦å³ä¸¤ä¾§çš„åŒ…å›´ç›’éƒ½æ˜¯åŒä¸€æ‰¹é¢ç‰‡åŒ…å›´ç›’çš„å¹¶é›†ï¼Œå› æ­¤ä¸åŸå®ç°é€ä½ç›¸åŒã€‚
 				float sufMin[BIN_NUM + 1][3], sufMax[BIN_NUM + 1][3];
 				int sufNum[BIN_NUM + 1];
 				for (int d2 = 0; d2 < 3; d2++) { sufMin[BIN_NUM][d2] = std::numeric_limits<float>::max(); sufMax[BIN_NUM][d2] = std::numeric_limits<float>::lowest(); }
@@ -145,7 +144,7 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 
 bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, const int index) {
 	if (m_nodes[index].triangleCount > 0) {
-		//Ò¶×Ó½Úµã£º±éÀúÆäÖĞµÄÈı½ÇĞÎ£¬È¡×î½üÃüÖĞ
+		//å¶å­èŠ‚ç‚¹ï¼šéå†å…¶ä¸­çš„ä¸‰è§’å½¢ï¼Œå–æœ€è¿‘å‘½ä¸­
 		bool isHit = false;
 		const uint32_t begin = m_nodes[index].triangleOffset, end = begin + m_nodes[index].triangleCount;
 		for (uint32_t i = begin; i < end; i++) {
@@ -157,17 +156,17 @@ bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, co
 		return isHit;
 	}
 	if (m_nodes[index].leftNode == 0 && m_nodes[index].rightNode == 0) {
-		//ÍË»¯²úÉúµÄ¿ÕÒ¶×Ó£º¼ÈÎŞÈı½ÇĞÎÒ²ÎŞ×Ó½Úµã£¬Ö±½ÓÅĞÎªÎ´ÃüÖĞ
-		//£¨¾ÉÊµÏÖ°Ñ¿ÕµÄÈı½ÇĞÎÁĞ±íµ±³ÉÄÚ²¿½Úµã£¬»áµİ¹é»Ø¸ù½Úµã£¬ÓĞÎŞÏŞµİ¹é·çÏÕ£©
+		//é€€åŒ–äº§ç”Ÿçš„ç©ºå¶å­ï¼šæ—¢æ— ä¸‰è§’å½¢ä¹Ÿæ— å­èŠ‚ç‚¹ï¼Œç›´æ¥åˆ¤ä¸ºæœªå‘½ä¸­
+		//ï¼ˆæ—§å®ç°æŠŠç©ºçš„ä¸‰è§’å½¢åˆ—è¡¨å½“æˆå†…éƒ¨èŠ‚ç‚¹ï¼Œä¼šé€’å½’å›æ ¹èŠ‚ç‚¹ï¼Œæœ‰æ— é™é€’å½’é£é™©ï¼‰
 		return false;
 	}
 	float leftT, rightT;
 	int leftIndex = m_nodes[index].leftNode, rightIndex = m_nodes[index].rightNode;
-	//Ê×ÏÈ¶Ô°üÎ§ºĞÇó½»£¬Èô°üÎ§ºĞ²»½»ÔòÎŞĞè½øĞĞºóĞøÅĞ¶Ï
+	//é¦–å…ˆå¯¹åŒ…å›´ç›’æ±‚äº¤ï¼Œè‹¥åŒ…å›´ç›’ä¸äº¤åˆ™æ— éœ€è¿›è¡Œåç»­åˆ¤æ–­
 	bool isLeftHit = m_nodes[leftIndex].bbox.hit(ray, t0, t1, leftT), isRightHit = m_nodes[rightIndex].bbox.hit(ray, t0, t1, rightT);
 	if (isLeftHit && isRightHit) {
-		//Èô×óÓÒ×Ó½Úµã¾ùÓĞ½»µã£¬Ôò¸ù¾İÏà½»Ê±¼äµÄÏÈºó¾ö¶¨×óÓÒ×Ó½ÚµãµÄºóĞøÅĞ¶ÏË³Ğò
-		//ÈôµÚÒ»¸ö×Ó½ÚµãÓĞ½»µã£¬ÔòÔÙ´ÎÅĞ¶ÏÁíÒ»¸ö×Ó½ÚµãµÄ°üÎ§ºĞÔÚĞÂµÄÊ±¼äÏÂÊÇ·ñÓĞ½»£¬ÈôÓĞÔò½øĞĞºóĞøÅĞ¶Ï
+		//è‹¥å·¦å³å­èŠ‚ç‚¹å‡æœ‰äº¤ç‚¹ï¼Œåˆ™æ ¹æ®ç›¸äº¤æ—¶é—´çš„å…ˆåå†³å®šå·¦å³å­èŠ‚ç‚¹çš„åç»­åˆ¤æ–­é¡ºåº
+		//è‹¥ç¬¬ä¸€ä¸ªå­èŠ‚ç‚¹æœ‰äº¤ç‚¹ï¼Œåˆ™å†æ¬¡åˆ¤æ–­å¦ä¸€ä¸ªå­èŠ‚ç‚¹çš„åŒ…å›´ç›’åœ¨æ–°çš„æ—¶é—´ä¸‹æ˜¯å¦æœ‰äº¤ï¼Œè‹¥æœ‰åˆ™è¿›è¡Œåç»­åˆ¤æ–­
 		if (leftT < rightT) {
 			isLeftHit = hit(ray, t0, t1, intersection, leftIndex);
 			if (isLeftHit) {
@@ -201,13 +200,13 @@ bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, co
 }
 
 bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersection& intersection, const int id) const {
-	//¸ù¾İÉäÏßÓëÈı½ÇĞÎÇó½»µÄ¹«Ê½½øĞĞ¼ÆËã
+	//æ ¹æ®å°„çº¿ä¸ä¸‰è§’å½¢æ±‚äº¤çš„å…¬å¼è¿›è¡Œè®¡ç®—
 	const glm::vec3* face = m_model->getFace(id);
 	glm::vec3 e1 = face[1] - face[0], e2 = face[2] - face[0], s = ray.origin - face[0];
 	glm::vec3 s1 = glm::cross(ray.direction, e2), s2 = glm::cross(s, e1);
 	float invSE1 = glm::dot(s1, e1);
 	if (glm::abs(invSE1) < EPSILON) {
-		//µ±Èı½ÇĞÎÁ½¸ö¶¥µãÎ»ÖÃÏàÍ¬Ê±»òÉäÏßÓëÈı½ÇĞÎÍêÈ«Æ½ĞĞÊ±ÅĞ¶¨ÎªÃ»ÓĞ½»µã
+		//å½“ä¸‰è§’å½¢ä¸¤ä¸ªé¡¶ç‚¹ä½ç½®ç›¸åŒæ—¶æˆ–å°„çº¿ä¸ä¸‰è§’å½¢å®Œå…¨å¹³è¡Œæ—¶åˆ¤å®šä¸ºæ²¡æœ‰äº¤ç‚¹
 		return false;
 	}
 	invSE1 = 1 / invSE1;

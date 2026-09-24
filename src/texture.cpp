@@ -1,4 +1,4 @@
-#include "texture.hpp"
+ï»¿#include "texture.hpp"
 #include <iostream>
 #include "stb/stb_image.hpp"
 
@@ -10,10 +10,10 @@ Texture::Texture(const std::string& filepath) {
     }else {
         int pixelNum = m_width * m_height;
         m_data = new glm::vec3[pixelNum];
-        //stbµ¼ÈëµÄÏñËØÖµÔÚ0-255£¬ÇÒRGBÖµ·Ö±ğ´æ´¢£¬Îª·½±ãÊ¹ÓÃ½«Ã¿¸öÏñËØµÄRGBÖµ×÷ÎªÒ»¸övec3´æ´¢£¬²¢½«ÏñËØÖµ¹éÒ»µ½0-1
+        //stbå¯¼å…¥çš„åƒç´ å€¼åœ¨0-255ï¼Œä¸”RGBå€¼åˆ†åˆ«å­˜å‚¨ï¼Œä¸ºæ–¹ä¾¿ä½¿ç”¨å°†æ¯ä¸ªåƒç´ çš„RGBå€¼ä½œä¸ºä¸€ä¸ªvec3å­˜å‚¨ï¼Œå¹¶å°†åƒç´ å€¼å½’ä¸€åˆ°0-1
         for (int i = 0, index = 0; i < pixelNum; i++, index += 3) {
-		//ÌùÍ¼ÎÄ¼ş°´ sRGB ´æ´¢£¬ÕâÀï½âÂëµ½ÏßĞÔ¿Õ¼äÔÙ²ÎÓëäÖÈ¾£»
-            //Èô²»½âÂë£¬ÌùÍ¼ÎïÌåÔÚÊä³ö¶Ë×ö sRGB ±àÂëºó»áÃ÷ÏÔÆ«ÁÁ£¨´ËÇ°²»½âÂëÒ²²»±àÂë£¬Îó²îÊÇÏà»¥µÖÏûµÄ£©
+		//è´´å›¾æ–‡ä»¶æŒ‰ sRGB å­˜å‚¨ï¼Œè¿™é‡Œè§£ç åˆ°çº¿æ€§ç©ºé—´å†å‚ä¸æ¸²æŸ“ï¼›
+            //è‹¥ä¸è§£ç ï¼Œè´´å›¾ç‰©ä½“åœ¨è¾“å‡ºç«¯åš sRGB ç¼–ç åä¼šæ˜æ˜¾åäº®ï¼ˆæ­¤å‰ä¸è§£ç ä¹Ÿä¸ç¼–ç ï¼Œè¯¯å·®æ˜¯ç›¸äº’æŠµæ¶ˆçš„ï¼‰
             glm::vec3 srgb = glm::vec3(data[index], data[index + 1], data[index + 2]) / 255.f;
             glm::vec3 lo = srgb / 12.92f;
             glm::vec3 hi = glm::pow((srgb + 0.055f) / 1.055f, glm::vec3(2.4f));
@@ -31,7 +31,7 @@ glm::vec3 Texture::sample(const glm::vec2 uv) const {
 	if (!m_data) {
         return glm::vec3(0);
 	}
-    //ÓÉÓÚÎÆÀí×ø±êÏµµÄÔ­µãÔÚÍ¼Æ¬×óÏÂ½Ç£¬¶østbµÄ×ø±êÏµÔ­µãÔÚ×óÉÏ½Ç£¬¹ÊyÖµĞè·­×ª
+    //ç”±äºçº¹ç†åæ ‡ç³»çš„åŸç‚¹åœ¨å›¾ç‰‡å·¦ä¸‹è§’ï¼Œè€Œstbçš„åæ ‡ç³»åŸç‚¹åœ¨å·¦ä¸Šè§’ï¼Œæ•…yå€¼éœ€ç¿»è½¬
     float u = uv.x * m_width, v = (1 - uv.y) * m_height;
     int x = static_cast<int>(u), y = static_cast<int>(v);
     if (x == m_width) {
@@ -42,7 +42,7 @@ glm::vec3 Texture::sample(const glm::vec2 uv) const {
     }
     u -= x;
     v -= y;
-    //»ñÈ¡ÔÚ¸Ãµã¸½½üµÄ4¸öÏñËØµã£¬È»ºóÍ¨¹ıË«ÏßĞÔ²åÖµ»ñÈ¡¸ÃµãÑÕÉ«
+    //è·å–åœ¨è¯¥ç‚¹é™„è¿‘çš„4ä¸ªåƒç´ ç‚¹ï¼Œç„¶åé€šè¿‡åŒçº¿æ€§æ’å€¼è·å–è¯¥ç‚¹é¢œè‰²
     int x1 = glm::clamp(x + 1, 0, m_width - 1), y1 = glm::clamp(y + 1, 0, m_height - 1);
     int index00 = y * m_width + x, index01 = y * m_width + x1, index10 = y1 * m_width + x, index11 = y1 * m_width + x1;
     return glm::mix(glm::mix(m_data[index00], m_data[index01], u), glm::mix(m_data[index10], m_data[index11], u), v);

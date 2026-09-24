@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include <cstdint>
 #include <array>
 #include <glm/glm.hpp>
 
 /// <summary>
-/// ²ÉÑùÆ÷Àà£¬Ìá¹©²ÉÑù1¸öÊıÓë²ÉÑù2¸öÊıµÄ·½·¨
+/// é‡‡æ ·å™¨ç±»ï¼Œæä¾›é‡‡æ ·1ä¸ªæ•°ä¸é‡‡æ ·2ä¸ªæ•°çš„æ–¹æ³•
 ///	Hash-based Owen-scrambled Sobol sequence generator based on:
 /// Practical Hash-based Owen Scrambling - Brent Burley
 /// https://jcgt.org/published/0009/04/01/
@@ -15,26 +15,26 @@ public:
 	Sampler();
 
 	/// <summary>
-	/// »ñÈ¡Ò»¸öÖ¸¶¨Î¬¶ÈµÄSobolĞòÁĞÖµ
+	/// è·å–ä¸€ä¸ªæŒ‡å®šç»´åº¦çš„Sobolåºåˆ—å€¼
 	/// </summary>
-	/// <param name="dim">Î¬¶È</param>
-	/// <returns>Ò»¸öÖ¸¶¨Î¬¶ÈµÄSobolĞòÁĞÖµ</returns>
+	/// <param name="dim">ç»´åº¦</param>
+	/// <returns>ä¸€ä¸ªæŒ‡å®šç»´åº¦çš„Sobolåºåˆ—å€¼</returns>
 	float get1D(uint8_t dim);
 	/// <summary>
-	/// »ñÈ¡Á½¸öÖ¸¶¨Î¬¶ÈµÄSobolĞòÁĞÖµ
+	/// è·å–ä¸¤ä¸ªæŒ‡å®šç»´åº¦çš„Sobolåºåˆ—å€¼
 	/// </summary>
-	/// <param name="dim">Î¬¶È</param>
-	/// <returns>Á½¸öÖ¸¶¨Î¬¶ÈµÄSobolĞòÁĞÖµ</returns>
+	/// <param name="dim">ç»´åº¦</param>
+	/// <returns>ä¸¤ä¸ªæŒ‡å®šç»´åº¦çš„Sobolåºåˆ—å€¼</returns>
 	glm::vec2 get2D(uint8_t dim);
 	/// <summary>
 	/// Called with e.g. linear pixel index before sampling pixel
 	/// </summary>
-	/// <param name="startSeed">ÆğÊ¼ÖÖ×Ó</param>
+	/// <param name="startSeed">èµ·å§‹ç§å­</param>
 	void initialize(uint32_t startSeed);
 	/// <summary>
 	/// Called with e.g. ray path index before each pixel sample
 	/// </summary>
-	/// <param name="index">Ë÷Òı</param>
+	/// <param name="index">ç´¢å¼•</param>
 	void setIndex(uint32_t index);
 	/// <summary>
 	/// Called at the beginning of e.g. each ray bounce/scatter to effectively 
@@ -43,69 +43,69 @@ public:
 	void shuffle();
 private:
 	/// <summary>
-	/// ËùÖ§³ÖµÄSobolĞòÁĞµÄ×î¸ßÎ¬¶È
+	/// æ‰€æ”¯æŒçš„Sobolåºåˆ—çš„æœ€é«˜ç»´åº¦
 	/// </summary>
 	static constexpr uint32_t MAX_DIM = 8;
 	/// <summary>
-	/// SobolĞòÁĞµÄÎ»·´×ª·½ÏòÊı
+	/// Sobolåºåˆ—çš„ä½åè½¬æ–¹å‘æ•°
 	/// </summary>
 	std::array<std::array<uint32_t, 32>, MAX_DIM> m_reversedDirectionNumbers;
 	inline static thread_local uint32_t m_baseSeed = 0u, m_seed = 0u, m_sequence = 0u, m_bitReversedIndex = 0u, m_shuffledIndex = 0u;
 	/// <summary>
-	/// È«¾ÖÖÖ×Ó
+	/// å…¨å±€ç§å­
 	/// </summary>
 	uint32_t m_globalSeed;
 
 	/// <summary>
-	/// ÓÃÓÚ±£Ö¤Ö»»á³õÊ¼»¯Ò»´ÎÈ«¾ÖÖÖ×Ó
+	/// ç”¨äºä¿è¯åªä¼šåˆå§‹åŒ–ä¸€æ¬¡å…¨å±€ç§å­
 	/// </summary>
-	/// <returns>È«¾ÖÖÖ×Ó</returns>
+	/// <returns>å…¨å±€ç§å­</returns>
 	static uint32_t getGlobalSeed();
 	/// <summary>
-	/// ÓÃÓÚ±£Ö¤Ö»»á³õÊ¼»¯Ò»´Î·½ÏòÊı
+	/// ç”¨äºä¿è¯åªä¼šåˆå§‹åŒ–ä¸€æ¬¡æ–¹å‘æ•°
 	/// </summary>
-	/// <returns>SobolĞòÁĞµÄ·½ÏòÊı</returns>
+	/// <returns>Sobolåºåˆ—çš„æ–¹å‘æ•°</returns>
 	static std::array<std::array<uint32_t, 32>, MAX_DIM> getBitReversedDirections();
 	/// <summary>
-	/// Éú³ÉSobolĞòÁĞµÄ·½ÏòÊı
+	/// ç”ŸæˆSobolåºåˆ—çš„æ–¹å‘æ•°
 	/// </summary>
-	/// <returns>SobolĞòÁĞµÄ·½ÏòÊı</returns>
+	/// <returns>Sobolåºåˆ—çš„æ–¹å‘æ•°</returns>
 	static std::array<std::array<uint32_t, 32>, MAX_DIM> generateBitReversedDirections();
 
 	/// <summary>
 	/// nested_uniform_scramble, but mostly avoids the first bit-reversal.
 	/// </summary>
-	/// <param name="bitReversedX">Î»·´×ªºóµÄÊı</param>
-	/// <param name="seed">ÖÖ×Ó</param>
-	/// <returns>ÈÅ¶¯ºóµÄSobolĞòÁĞÖµ</returns>
+	/// <param name="bitReversedX">ä½åè½¬åçš„æ•°</param>
+	/// <param name="seed">ç§å­</param>
+	/// <returns>æ‰°åŠ¨åçš„Sobolåºåˆ—å€¼</returns>
 	uint32_t scramble(uint32_t bitReversedX, uint32_t seed);
 	/// <summary>
-	/// ¼ÆËã¸ø¶¨ÊıµÄ¹şÏ£Öµ
+	/// è®¡ç®—ç»™å®šæ•°çš„å“ˆå¸Œå€¼
 	///	2-round constants with lowest bias from:
 	/// https://github.com/skeeto/hash-prospector
 	/// </summary>
-	/// <param name="x">Òª¼ÆËã¹şÏ£ÖµµÄÊı</param>
-	/// <returns>¸ø¶¨ÊıµÄ¹şÏ£Öµ</returns>
+	/// <param name="x">è¦è®¡ç®—å“ˆå¸Œå€¼çš„æ•°</param>
+	/// <returns>ç»™å®šæ•°çš„å“ˆå¸Œå€¼</returns>
 	uint32_t hash(uint32_t x);
 	/// <summary>
 	/// Boost hash combine
 	/// </summary>
-	/// <param name="seed">ÖÖ×Ó</param>
-	/// <param name="v">ÁíÒ»¸ö¹şÏ£Öµ</param>
-	/// <returns>½áºÏºóµÄ¹şÏ£Öµ</returns>
+	/// <param name="seed">ç§å­</param>
+	/// <param name="v">å¦ä¸€ä¸ªå“ˆå¸Œå€¼</param>
+	/// <returns>ç»“åˆåçš„å“ˆå¸Œå€¼</returns>
 	uint32_t hashCombine(uint32_t seed, uint32_t v);
 	/// <summary>
-	/// ¸ù¾İ¸ø¶¨Ë÷ÒıÓëÎ¬¶ÈÉú³ÉSobolĞòÁĞÖµ
+	/// æ ¹æ®ç»™å®šç´¢å¼•ä¸ç»´åº¦ç”ŸæˆSobolåºåˆ—å€¼
 	/// </summary>
-	/// <param name="index">Ë÷Òı</param>
-	/// <param name="dim">Î¬¶È</param>
-	/// <returns>Éú³ÉµÄSobolĞòÁĞÖµ</returns>
+	/// <param name="index">ç´¢å¼•</param>
+	/// <param name="dim">ç»´åº¦</param>
+	/// <returns>ç”Ÿæˆçš„Sobolåºåˆ—å€¼</returns>
 	uint32_t sobol(uint32_t index, int dim);
 	/// <summary>
-	/// ½«¸ø¶¨ÊıÎ»·´×ª
+	/// å°†ç»™å®šæ•°ä½åè½¬
 	/// </summary>
-	/// <param name="n">¸ø¶¨Êı</param>
-	/// <returns>Î»·´×ªºóµÄÊı</returns>
+	/// <param name="n">ç»™å®šæ•°</param>
+	/// <returns>ä½åè½¬åçš„æ•°</returns>
 	static uint32_t reverseBits(uint32_t n);
 };
 

@@ -1,4 +1,4 @@
-#include "intersection.hpp"
+ï»¿#include "intersection.hpp"
 
 #include "constant.hpp"
 
@@ -10,7 +10,7 @@ bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfV
 		pdf = localWi.y * INV_PI;
 		brdfVal = material->getDiffuse(uv) * INV_PI;
 	}else if (material->type == SPECULAR) {
-		//¦Ä ¾µÃæ£ºNEE ÃüÖĞËüµÄ¸ÅÂÊÎª 0£¬Ö±½Ó·µ»ØÁã¹±Ï×£¨·´Éä¹âÈ«²¿ÓÉ BSDF ²ÉÑùÕâÒ»Â·´ø»Ø£©
+		//Î´ é•œé¢ï¼šNEE å‘½ä¸­å®ƒçš„æ¦‚ç‡ä¸º 0ï¼Œç›´æ¥è¿”å›é›¶è´¡çŒ®ï¼ˆåå°„å…‰å…¨éƒ¨ç”± BSDF é‡‡æ ·è¿™ä¸€è·¯å¸¦å›ï¼‰
 		if (material->isDeltaSpecular()) {
 			pdf = 0.f;
 			brdfVal = glm::vec3(0);
@@ -19,8 +19,8 @@ bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfV
 		glm::vec3 h = glm::normalize(wi - wo);
 		float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 		float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-		//·ÆÄù¶ûµÄ×Ô±äÁ¿±ØĞëÓë specularReflect ÍêÈ«Ò»ÖÂ£¨°ë½ÇÏòÁ¿ÓàÏÒ£©£¬·ñÔòÁ½ÖÖ²ÉÑù²ßÂÔ
-		//¹À¼ÆµÄÊÇ²»Í¬µÄ BRDF£¬ÇÒ²îÒìËæÑÕÉ«Óë½Ç¶È±ä»¯£¬MIS ¼ÓÈ¨ÔÚÊıÑ§ÉÏ²»³ÉÁ¢
+		//è²æ¶…å°”çš„è‡ªå˜é‡å¿…é¡»ä¸ specularReflect å®Œå…¨ä¸€è‡´ï¼ˆåŠè§’å‘é‡ä½™å¼¦ï¼‰ï¼Œå¦åˆ™ä¸¤ç§é‡‡æ ·ç­–ç•¥
+		//ä¼°è®¡çš„æ˜¯ä¸åŒçš„ BRDFï¼Œä¸”å·®å¼‚éšé¢œè‰²ä¸è§’åº¦å˜åŒ–ï¼ŒMIS åŠ æƒåœ¨æ•°å­¦ä¸Šä¸æˆç«‹
 		glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
 		pdf = d * hDotN / (glm::dot(h, wi) * 4);
 		brdfVal = d * f * v ;
@@ -36,7 +36,7 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 	}
 	if (material->type == SPECULAR) {
 		if (material->isDeltaSpecular()) {
-			//ÀíÏë ¦Ä ¾µÃæ£º·´Éä·½ÏòÎ¨Ò»£¬²»ÔÙ¶ÔÒ¶°ê×ö¶¶¶¯²ÉÑù
+			//ç†æƒ³ Î´ é•œé¢ï¼šåå°„æ–¹å‘å”¯ä¸€ï¼Œä¸å†å¯¹å¶ç“£åšæŠ–åŠ¨é‡‡æ ·
 			glm::vec3 reflected = glm::reflect(wo, normal);
 			float cosTheta = glm::dot(normal, reflected);
 			if (cosTheta <= 0.f) {
@@ -44,9 +44,9 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 				return glm::vec3(0);
 			}
 			wi = glm::normalize(reflected);
-			//¦Ä ·Ö²¼µÄÃÜ¶È²»ÊÇÆÕÍ¨º¯Êı£ºÕâÀï·µ»Ø (brdf, pdf) µÄÒ»×éµÈ¼Û±íÊ¾£¬
-			//Ê¹ÉÏ²ã brdf * radiance * cos / pdf Ç¡ºÃµÈÓÚ·ÆÄù¶û·´ÉäÂÊ F ³ËÈëÉä·øÁÁ¶È£¬
-			//Í¬Ê±°Ñ pdf ½»¸ø MIS ±íÊ¾¡°¾µÃæÕâÒ»Â·Ô¶ÓÅÓÚ¹âÔ´²ÉÑù¡±¡£
+			//Î´ åˆ†å¸ƒçš„å¯†åº¦ä¸æ˜¯æ™®é€šå‡½æ•°ï¼šè¿™é‡Œè¿”å› (brdf, pdf) çš„ä¸€ç»„ç­‰ä»·è¡¨ç¤ºï¼Œ
+			//ä½¿ä¸Šå±‚ brdf * radiance * cos / pdf æ°å¥½ç­‰äºè²æ¶…å°”åå°„ç‡ F ä¹˜å…¥å°„è¾äº®åº¦ï¼Œ
+			//åŒæ—¶æŠŠ pdf äº¤ç»™ MIS è¡¨ç¤ºâ€œé•œé¢è¿™ä¸€è·¯è¿œä¼˜äºå…‰æºé‡‡æ ·â€ã€‚
 			glm::vec3 f = schlickFresnel(material->specular, cosTheta);
 			pdf = DELTA_SPECULAR_PDF;
 			return f * DELTA_SPECULAR_PDF / cosTheta;
@@ -54,7 +54,7 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 		return specularReflect(wo, wi, pdf, sampler);
 	}
 	if (material->type == DIFFUSE_SPECULAR) {
-		//°´È¨ÖØËæ»úÑ¡ÔñÒ»¸ö lobe ²ÉÑù³öÉä·½Ïò£¨Ö»ÊÇ²ÉÑùÊÖ¶Î£¬²»Ó°Ïì±»¹À¼ÆµÄ»ı·Ö£©
+		//æŒ‰æƒé‡éšæœºé€‰æ‹©ä¸€ä¸ª lobe é‡‡æ ·å‡ºå°„æ–¹å‘ï¼ˆåªæ˜¯é‡‡æ ·æ‰‹æ®µï¼Œä¸å½±å“è¢«ä¼°è®¡çš„ç§¯åˆ†ï¼‰
 		float rnd = sampler->get1D(5);
 		float lobePDF;
 		if (rnd < material->diffuseRate) {
@@ -63,11 +63,11 @@ glm::vec3 Intersection::brdf(glm::vec3 wo, glm::vec3& wi, float& pdf, Sampler* s
 			specularReflect(wo, wi, lobePDF, sampler);
 		}
 		if (lobePDF <= 0.f) {
-			//ÎŞĞ§²ÉÑù£¨ÀıÈç·´Éä·½ÏòÂäÔÚ±íÃæÒÔÏÂ£©
+			//æ— æ•ˆé‡‡æ ·ï¼ˆä¾‹å¦‚åå°„æ–¹å‘è½åœ¨è¡¨é¢ä»¥ä¸‹ï¼‰
 			pdf = 0.f;
 			return glm::vec3(0);
 		}
-		//ÔÙÓÃÍêÕû BRDF Óë±ßÔµÃÜ¶ÈÇóÖµ£¬±£Ö¤Óë¹âÔ´²ÉÑùÂ·¾¶¹À¼ÆÍ¬Ò»¸ö»ı·Ö
+		//å†ç”¨å®Œæ•´ BRDF ä¸è¾¹ç¼˜å¯†åº¦æ±‚å€¼ï¼Œä¿è¯ä¸å…‰æºé‡‡æ ·è·¯å¾„ä¼°è®¡åŒä¸€ä¸ªç§¯åˆ†
 		return evaluateMixed(wo, wi, pdf);
 	}
 	return glm::vec3(0);
@@ -88,16 +88,16 @@ glm::vec3 Intersection::specularReflect(glm::vec3 wo, glm::vec3& wi, float& pdf,
 	glm::vec3 h = glm::vec3(sinTheta * glm::cos(phi), cosTheta, sinTheta * glm::sin(phi));
 	h = m_transform * h;
 	wi = glm::normalize(glm::reflect(wo, h));
-	//·´Éä·½ÏòÂäÔÚ±íÃæÒÔÏÂÊ±¸Ã²ÉÑùÎŞĞ§£ºBRDF Îª 0£¬·µ»Ø PDF=0 ÈÃµ÷ÓÃ·½Ìø¹ı¸ÃÑù±¾
-	//£¨·ñÔò dot(normal, wi) < 0 »á²úÉú¸ºµÄ¼ä½Ó¹â¹±Ï×£¬±» clamp ¶ªÆúºó±íÏÖÎªÏµÍ³ĞÔÆ«ÁÁ£©
+	//åå°„æ–¹å‘è½åœ¨è¡¨é¢ä»¥ä¸‹æ—¶è¯¥é‡‡æ ·æ— æ•ˆï¼šBRDF ä¸º 0ï¼Œè¿”å› PDF=0 è®©è°ƒç”¨æ–¹è·³è¿‡è¯¥æ ·æœ¬
+	//ï¼ˆå¦åˆ™ dot(normal, wi) < 0 ä¼šäº§ç”Ÿè´Ÿçš„é—´æ¥å…‰è´¡çŒ®ï¼Œè¢« clamp ä¸¢å¼ƒåè¡¨ç°ä¸ºç³»ç»Ÿæ€§åäº®ï¼‰
 	if (glm::dot(wi, normal) <= 0.f) {
 		pdf = 0.f;
 		return glm::vec3(0);
 	}
-	//Î¢±íÃæÄ£ĞÍBRDF: fr = D * F * G 
+	//å¾®è¡¨é¢æ¨¡å‹BRDF: fr = D * F * G 
 	float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 	float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-	//Óë brdf() ÇóÖµÂ·¾¶±£³ÖÒ»ÖÂ£º·ÆÄù¶û×Ô±äÁ¿È¡°ë½ÇÏòÁ¿ÓàÏÒ
+	//ä¸ brdf() æ±‚å€¼è·¯å¾„ä¿æŒä¸€è‡´ï¼šè²æ¶…å°”è‡ªå˜é‡å–åŠè§’å‘é‡ä½™å¼¦
 	glm::vec3 f = schlickFresnel(material->specular, glm::dot(wi, h));
 	pdf = d * hDotN / (glm::dot(wi, h) * 4);
 	return d * f * v;
@@ -109,21 +109,21 @@ glm::vec3 Intersection::evaluateMixed(glm::vec3 wo, glm::vec3 wi, float& pdf) co
 	glm::vec3 h = glm::normalize(wi - wo);
 	float hDotN = glm::dot(h, normal), oDotN = glm::dot(-wo, normal), iDotN = glm::dot(wi, normal);
 	float d = ggx(hDotN), v = smithGGX(oDotN) * smithGGX(iDotN);
-	//×÷Òµ mtl ÊÇ Phong ÓïÒå£ºKd=Âş·´ÉäÂÊ¡¢Ks=¸ß¹âÑÕÉ«¡¢Ns=¸ß¹âÖ¸Êı¡£
-	//ÕâÀïÈÃ Ks Ö»×÷Îª¸ß¹âµÄ¡°ÑÕÉ«/Ç¿¶È¡±£¬·ÆÄù¶ûÓÃ 4% ½éµç»ùµ×£»
-	//ÈôÏñ½ğÊô¶È¹¤×÷Á÷ÄÇÑù°Ñ Ks Ö±½Óµ± F0£¬¸ß¹âÄÜÁ¿»á¸ß³öÒ»¸öÊıÁ¿¼¶£¬
-	//veach-mis µÄÌõÃæ»á±»°×É«¸ß¹â³å³É»Ò°×£¨Êµ²âÌõÃæÁÁ¶È 0.556 vs ²Î¿¼ 0.290£©¡£
-	//·ÆÄù¶û F0 = Ks£¬Óë´¿¾µÃæ·ÖÖ§(specularReflect)±£³ÖÍ¬Ò»Ô¼¶¨£º
-	//×÷Òµ mtl µÄ Ks ÊÇ¡°¸ß¹âÑÕÉ«/¾µÃæ·´ÉäÂÊ¡±£¬²»ÊÇ½éµç»ùµ×µÄ 4%¡ª¡ª
-	//´ËÇ°»ìºÏ·ÖÖ§Ğ´³É Ks*F(0.04) »áÈÃÍ¬Ò»²ÄÖÊÔÚ Kd=0 Óë Kd!=0 Ê±¸ß¹â²î 25 ±¶£¬
-	//±íÏÖÎª¡°°Ñ Kd ´Ó 0 ¸Ä³É·Ç 0£¬¹â°ßÁÁ¶ÈÖè¼õ¡±£¨veach-mis ÁÁ>0.9 ´Ó 51382 µôµ½ 221£©¡£
+	//ä½œä¸š mtl æ˜¯ Phong è¯­ä¹‰ï¼šKd=æ¼«åå°„ç‡ã€Ks=é«˜å…‰é¢œè‰²ã€Ns=é«˜å…‰æŒ‡æ•°ã€‚
+	//è¿™é‡Œè®© Ks åªä½œä¸ºé«˜å…‰çš„â€œé¢œè‰²/å¼ºåº¦â€ï¼Œè²æ¶…å°”ç”¨ 4% ä»‹ç”µåŸºåº•ï¼›
+	//è‹¥åƒé‡‘å±åº¦å·¥ä½œæµé‚£æ ·æŠŠ Ks ç›´æ¥å½“ F0ï¼Œé«˜å…‰èƒ½é‡ä¼šé«˜å‡ºä¸€ä¸ªæ•°é‡çº§ï¼Œ
+	//veach-mis çš„æ¡é¢ä¼šè¢«ç™½è‰²é«˜å…‰å†²æˆç°ç™½ï¼ˆå®æµ‹æ¡é¢äº®åº¦ 0.556 vs å‚è€ƒ 0.290ï¼‰ã€‚
+	//è²æ¶…å°” F0 = Ksï¼Œä¸çº¯é•œé¢åˆ†æ”¯(specularReflect)ä¿æŒåŒä¸€çº¦å®šï¼š
+	//ä½œä¸š mtl çš„ Ks æ˜¯â€œé«˜å…‰é¢œè‰²/é•œé¢åå°„ç‡â€ï¼Œä¸æ˜¯ä»‹ç”µåŸºåº•çš„ 4%â€”â€”
+	//æ­¤å‰æ··åˆåˆ†æ”¯å†™æˆ Ks*F(0.04) ä¼šè®©åŒä¸€æè´¨åœ¨ Kd=0 ä¸ Kd!=0 æ—¶é«˜å…‰å·® 25 å€ï¼Œ
+	//è¡¨ç°ä¸ºâ€œæŠŠ Kd ä» 0 æ”¹æˆé 0ï¼Œå…‰æ–‘äº®åº¦éª¤å‡â€ï¼ˆveach-mis äº®>0.9 ä» 51382 æ‰åˆ° 221ï¼‰ã€‚
 	glm::vec3 f = schlickFresnel(glm::mix(glm::vec3(0.04f), material->specular, s_specularBlend), glm::dot(wi, h));
 	float specularPDF = d * hDotN / (glm::dot(h, wi) * 4);
-	//BRDF ÎªÁ½ÏîÖ®ºÍ£»PDF Îª²ÉÑù¹ı³ÌµÄ±ßÔµÃÜ¶È£¨= Á½¸ö lobe ÃÜ¶È°´²ÉÑùÈ¨ÖØÇóºÍ£©
+	//BRDF ä¸ºä¸¤é¡¹ä¹‹å’Œï¼›PDF ä¸ºé‡‡æ ·è¿‡ç¨‹çš„è¾¹ç¼˜å¯†åº¦ï¼ˆ= ä¸¤ä¸ª lobe å¯†åº¦æŒ‰é‡‡æ ·æƒé‡æ±‚å’Œï¼‰
 	pdf = material->diffuseRate * localWi.y * INV_PI + (1 - material->diffuseRate) * specularPDF;
-	//Âş·´ÉäÖ»±£ÁôÃ»±»¸ß¹â·´ÉäµôµÄÄÇ²¿·ÖÄÜÁ¿ (1-F)£¬F ÓÃÉÏÃæ´ø blend µÄ·ÆÄù¶û¡£
-	//Êµ²â£ºveach-mis MAE 0.1083->0.1036¡¢ÁÁ>0.5 Ãæ»ı 92112->86454£»
-	//bathroom2 MAE 0.0684->0.0676¡¢Ceramic 1.18->1.13¡¢StainlessRough 0.92->0.88¡£
+	//æ¼«åå°„åªä¿ç•™æ²¡è¢«é«˜å…‰åå°„æ‰çš„é‚£éƒ¨åˆ†èƒ½é‡ (1-F)ï¼ŒF ç”¨ä¸Šé¢å¸¦ blend çš„è²æ¶…å°”ã€‚
+	//å®æµ‹ï¼šveach-mis MAE 0.1083->0.1036ã€äº®>0.5 é¢ç§¯ 92112->86454ï¼›
+	//bathroom2 MAE 0.0684->0.0676ã€Ceramic 1.18->1.13ã€StainlessRough 0.92->0.88ã€‚
 	return (glm::vec3(1.f) - f) * diffuseVal + d * f * v;
 }
 

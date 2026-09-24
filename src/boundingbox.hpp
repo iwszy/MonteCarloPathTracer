@@ -1,12 +1,12 @@
-#pragma once
+ï»¿#pragma once
 
 #include <utility>
 #include "ray.hpp"
 #include "constant.hpp"
 
 /// <summary>
-/// °üÎ§ºĞÀà£¬Ê¹ÓÃÖá¶ÔÆë°üÎ§ºĞ¡£×îĞ¡Öµ/×î´óÖµ¸ÄÎªÄÚÁªÊı×é´æ´¢£¬
-/// ±éÀúÊ±ÎŞĞèÔÙ¾­¹ı unique_ptr ÓëÁ½¸ö float* ÈıÖØÖ¸ÕëÌø×ª¡£
+/// åŒ…å›´ç›’ç±»ï¼Œä½¿ç”¨è½´å¯¹é½åŒ…å›´ç›’ã€‚æœ€å°å€¼/æœ€å¤§å€¼æ”¹ä¸ºå†…è”æ•°ç»„å­˜å‚¨ï¼Œ
+/// éå†æ—¶æ— éœ€å†ç»è¿‡ unique_ptr ä¸ä¸¤ä¸ª float* ä¸‰é‡æŒ‡é’ˆè·³è½¬ã€‚
 /// </summary>
 class BoundingBox {
 public:
@@ -21,7 +21,7 @@ public:
 	BoundingBox(const float* min, const float* max) { set(min, max); }
 
 	/// <summary>
-	/// ÓÃÁ½¸ö³¤¶ÈÎª 3 µÄÊı×éÉèÖÃ°üÎ§ºĞ
+	/// ç”¨ä¸¤ä¸ªé•¿åº¦ä¸º 3 çš„æ•°ç»„è®¾ç½®åŒ…å›´ç›’
 	/// </summary>
 	void set(const float* min, const float* max) {
 		this->min[0] = min[0]; this->min[1] = min[1]; this->min[2] = min[2];
@@ -29,12 +29,12 @@ public:
 	}
 
 	/// <summary>
-	/// ÅĞ¶ÏÉäÏßÊÇ·ñºÍ¸Ã°üÎ§ºĞÓĞ½»µã£¬ÈôÓĞÔò´æ´¢½øÈëÊ±µÄÊ±¼äÖµ
+	/// åˆ¤æ–­å°„çº¿æ˜¯å¦å’Œè¯¥åŒ…å›´ç›’æœ‰äº¤ç‚¹ï¼Œè‹¥æœ‰åˆ™å­˜å‚¨è¿›å…¥æ—¶çš„æ—¶é—´å€¼
 	/// </summary>
 	bool hit(const Ray& ray, const float t0, const float t1, float& t) const {
 		float tEnter = t0, tExit = t1;
 		for (int i = 0; i < 3; i++) {
-			//ÉäÏß·½ÏòÓë¸ÃÖáÆ½ĞĞÊ±£¬Ö»ĞèÅĞ¶ÏÆğµãÔÚ¸ÃÖáÉÏÊÇ·ñÎ»ÓÚ°üÎ§ºĞÖ®Íâ
+			//å°„çº¿æ–¹å‘ä¸è¯¥è½´å¹³è¡Œæ—¶ï¼Œåªéœ€åˆ¤æ–­èµ·ç‚¹åœ¨è¯¥è½´ä¸Šæ˜¯å¦ä½äºåŒ…å›´ç›’ä¹‹å¤–
 			if (glm::abs(ray.direction[i]) < EPSILON) {
 				if (ray.origin[i] < min[i] && ray.origin[i] > max[i]) {
 					return false;
@@ -48,7 +48,7 @@ public:
 			}
 			tEnter = glm::max(tEnter, tMin);
 			tExit = glm::min(tExit, tMax);
-			//½øÈëÊ±¼ä´óÓÚÀë¿ªÊ±¼ä¡¢»òÀë¿ªÊ±¼äĞ¡ÓÚÆğÊ¼Ê±¼ä£¬Ôò²»¿ÉÄÜÏà½»
+			//è¿›å…¥æ—¶é—´å¤§äºç¦»å¼€æ—¶é—´ã€æˆ–ç¦»å¼€æ—¶é—´å°äºèµ·å§‹æ—¶é—´ï¼Œåˆ™ä¸å¯èƒ½ç›¸äº¤
 			if (tEnter > tExit || tExit < t0) {
 				return false;
 			}

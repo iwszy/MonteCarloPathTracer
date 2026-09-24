@@ -1,36 +1,36 @@
-#pragma once
+ï»¿#pragma once
 
 #include <glm/glm.hpp>
 
 /// <summary>
-/// ÉäÏßÀà£¬Ìá¹©ÉäÏßµÄ»ù±¾¹¦ÄÜ
+/// å°„çº¿ç±»ï¼Œæä¾›å°„çº¿çš„åŸºæœ¬åŠŸèƒ½
 /// </summary>
 class Ray{
 public:
 	/// <summary>
-	/// ÉäÏßµÄÆğµã
+	/// å°„çº¿çš„èµ·ç‚¹
 	/// </summary>
 	glm::vec3 origin;
 	/// <summary>
-	/// ÉäÏßµÄ·½Ïò
+	/// å°„çº¿çš„æ–¹å‘
 	/// </summary>
 	glm::vec3 direction;
 
 	/// <summary>
-	/// ¸ù¾İÉäÏßµÄÆğµãÓë·½Ïò¹¹ÔìÉäÏß
+	/// æ ¹æ®å°„çº¿çš„èµ·ç‚¹ä¸æ–¹å‘æ„é€ å°„çº¿
 	/// </summary>
-	/// <param name="o">ÉäÏßÆğµã</param>
-	/// <param name="dir">ÉäÏß·½Ïò</param>
+	/// <param name="o">å°„çº¿èµ·ç‚¹</param>
+	/// <param name="dir">å°„çº¿æ–¹å‘</param>
 	Ray(glm::vec3 o, glm::vec3 dir) {
 		origin = o;
 		direction = dir;
 	}
 
 	/// <summary>
-	/// ¸ù¾İ¸ø¶¨µÄÊ±¼ä»ñÈ¡ÉäÏßÔÚ¸ÃÊ±¼äÊ±µÄÎ»ÖÃ
+	/// æ ¹æ®ç»™å®šçš„æ—¶é—´è·å–å°„çº¿åœ¨è¯¥æ—¶é—´æ—¶çš„ä½ç½®
 	/// </summary>
-	/// <param name="t">Ê±¼ä</param>
-	/// <returns>ÉäÏßÔÚ¸ø¶¨Ê±¼äµÄÎ»ÖÃ</returns>
+	/// <param name="t">æ—¶é—´</param>
+	/// <returns>å°„çº¿åœ¨ç»™å®šæ—¶é—´çš„ä½ç½®</returns>
 	glm::vec3 at(const float t) const {
 		return origin + direction * t;
 	}
