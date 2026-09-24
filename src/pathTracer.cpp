@@ -239,7 +239,7 @@ glm::vec3 PathTracer::sampleDirectLight(glm::vec3 wo, Intersection& intersection
 			continue;
 		}
 		//若阴影射线不符合BRDF分布也视为无效采样
-		if (!intersection.brdf(wo, shadowRay.direction, brdf, brdfPDF, m_sampler)) {
+		if (!intersection.brdf(wo, shadowRay.direction, brdf, brdfPDF)) {
 			continue;
 		}
 

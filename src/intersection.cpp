@@ -4,7 +4,7 @@
 
 float Intersection::s_specularBlend = 0.25f;
 
-bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfVal, float& pdf, Sampler* sampler) {
+bool Intersection::brdf(const glm::vec3 wo, const glm::vec3 wi, glm::vec3& brdfVal, float& pdf) {
 	glm::vec3 localWi = m_transposeTransform * wi;
 	if (material->type == DIFFUSE) {
 		pdf = localWi.y * INV_PI;

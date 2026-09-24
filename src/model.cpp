@@ -3,8 +3,6 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
-#include <cstring>
-#include <iterator>
 
 namespace {
 	/// <summary>

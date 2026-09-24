@@ -41,9 +41,8 @@ public:
 	/// <param name="wi">出射方向</param>
 	/// <param name="brdfVal">BRDF值</param>
 	/// <param name="pdf">BRDF在出射方向上的PDF</param>
-	/// <param name="sampler">采样器</param>
 	/// <returns>出射方向是否符合BRDF分布，即pdf是否>=0</returns>
-	bool brdf(glm::vec3 wo, glm::vec3 wi, glm::vec3& brdfVal, float& pdf, Sampler* sampler);
+	bool brdf(glm::vec3 wo, glm::vec3 wi, glm::vec3& brdfVal, float& pdf);
 	/// <summary>
 	/// 根据材质的BRDF分布采样新方向并计算PDF与BRDF值
 	/// </summary>

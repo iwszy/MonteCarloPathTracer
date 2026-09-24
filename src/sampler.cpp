@@ -1,5 +1,4 @@
 ﻿#include "sampler.hpp"
-#include <random>
 
 Sampler::Sampler() : m_reversedDirectionNumbers(getBitReversedDirections()), m_globalSeed(getGlobalSeed()) {
     
