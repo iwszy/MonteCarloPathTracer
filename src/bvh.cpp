@@ -15,7 +15,7 @@ BVH::BVH(int* triangles, int n, Model* model) {
 }
 
 void BVH::build(int* triangles, const int left, const int right, float* min, float* max) {
-	int nodeIndex = m_nodes.size();
+	const int nodeIndex = static_cast<int>(m_nodes.size());
 	m_nodes.emplace_back();
 	m_nodes[nodeIndex].bbox.set(min, max);
 	if (right - left < MAX_TRIANGLE) {
@@ -135,9 +135,9 @@ void BVH::build(int* triangles, const int left, const int right, float* min, flo
 		[&](int a, int b) {
 			return m_model->getAxisCenter(a, finalDim) < m_model->getAxisCenter(b, finalDim);
 		});
-		m_nodes[nodeIndex].leftNode = m_nodes.size();
+		m_nodes[nodeIndex].leftNode = static_cast<uint32_t>(m_nodes.size());
 		build(triangles, left, mid, leftMin, leftMax);
-		m_nodes[nodeIndex].rightNode = m_nodes.size();
+		m_nodes[nodeIndex].rightNode = static_cast<uint32_t>(m_nodes.size());
 		build(triangles, mid + 1, right, rightMin, rightMax);
 	}
 }
