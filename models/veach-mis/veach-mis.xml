@@ -5,8 +5,8 @@
 		<lookat x="0.0" y="2.8" z="0.0"/> 
 		<up x="0.0" y="1.0" z="0.0"/> 
 	</camera>
-	<light mtlname="light1" radiance="300,300,300"/>
-	<light mtlname="light2" radiance="50,50,50"/>
-	<light mtlname="light3" radiance="20,20,20"/>
-	<light mtlname="light4" radiance="10,10,10"/>
+	<light mtlname="light1" radiance="291.6, 291.6, 291.6"/>
+	<light mtlname="light2" radiance="48.6, 48.6, 48.6"/>
+	<light mtlname="light3" radiance="19.44, 19.44, 19.44"/>
+	<light mtlname="light4" radiance="9.72, 9.72, 9.72"/>
 </scene>

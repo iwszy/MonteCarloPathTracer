@@ -5,5 +5,5 @@
 		<lookat x="553.6" y="274.4" z="279.6"/>
 		<up x="0.0" y="1.0" z="0.0"/>
 	</camera>
-	<light mtlname="Light" radiance="34.0, 24.0, 8.0"/>
+	<light mtlname="Light" radiance="23.086, 16.296, 5.432"/>
 </scene>

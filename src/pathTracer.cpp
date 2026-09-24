@@ -37,7 +37,7 @@ PathTracer::PathTracer(Scene* scene, Camera* camera) {
 	m_scene = scene;
 	m_camera = camera;
 	m_sampler = new Sampler();
-	m_spp = 16;
+	m_spp = 256;
 	int pixelNum = camera->getWidth() * camera->getHeight();
 	m_image = new unsigned char[pixelNum * 4];
 	//线性 HDR 累加缓冲，出图时再做曝光与色调映射
@@ -272,7 +272,11 @@ glm::vec3 PathTracer::sampleDirectLight(glm::vec3 wo, Intersection& intersection
 		}
 
 		//阴影射线未击中物体或击中的物体不是所采样的光源面则视为无效采样
-		if (!m_scene->hit(shadowRay, shadowIntersection) || shadowIntersection.id != face) {
+		//可见性判定用距离而不是"命中的面 id"：光源面与天花板/墙共面时，阴影射线在两者上的 t 完全相同，
+		//返回哪一个取决于 BVH 叶内顺序（任意），会把大量本该有效的光源样本误判为遮挡而丢弃。
+		//只要最近的遮挡物不比光面更近，就说明该着色点能看见光源。
+		float lightDistance = glm::sqrt(glm::dot(toLight, toLight));
+		if (!m_scene->hit(shadowRay, shadowIntersection) || shadowIntersection.t < lightDistance * (1.f - 1e-3f)) {
 			continue;
 		}
 		
