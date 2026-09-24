@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <scene>
-	<camera exposure="400" tonemap="linear" type="perspective" width="1280" height="720" fovy="20.1143">
+	<camera specularBlend="0.25" exposure="400" tonemap="linear" type="perspective" width="1280" height="720" fovy="20.1143">
 		<eye x="28.2792" y="5.2" z="1.23612e-06"/> 
 		<lookat x="0.0" y="2.8" z="0.0"/> 
 		<up x="0.0" y="1.0" z="0.0"/> 
