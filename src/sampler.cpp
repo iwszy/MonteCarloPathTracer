@@ -9,6 +9,10 @@ float Sampler::get1D(uint8_t dim) {
     return static_cast<float>(scramble(sobol(m_shuffledIndex, dim), hashCombine(m_seed, hash(dim)))) / (1ULL << 32);
 }
 
+float Sampler::getRandom(uint32_t salt) {
+    return static_cast<float>(scramble(m_bitReversedIndex, hashCombine(m_seed, hash(salt + 0x9e3779b9u)))) / (1ULL << 32);
+}
+
 glm::vec2 Sampler::get2D(uint8_t dim) {
     return {get1D(dim), get1D(dim + 1)};
 }

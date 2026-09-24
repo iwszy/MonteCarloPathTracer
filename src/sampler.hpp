@@ -27,6 +27,15 @@ public:
 	/// <returns>两个指定维度的Sobol序列值</returns>
 	glm::vec2 get2D(uint8_t dim);
 	/// <summary>
+	/// 取一个与既有 Sobol 维度不相关的额外随机数，用于俄罗斯轮盘赌这类分支决策。
+	/// 复用位反转索引（van der Corput 序列）但换用另一套 scramble 键，既不占用
+	/// get1D/get2D 使用的那 8 个维度，也不会与它们相关；同一样本内每次 shuffle() 之后
+	/// 取值都不同，因此每个弹射点都能拿到新的随机数。
+	/// </summary>
+	/// <param name="salt">区分不同用途的盐值</param>
+	/// <returns>[0,1) 区间的随机数</returns>
+	float getRandom(uint32_t salt);
+	/// <summary>
 	/// Called with e.g. linear pixel index before sampling pixel
 	/// </summary>
 	/// <param name="startSeed">起始种子</param>

@@ -143,9 +143,11 @@ void PathTracer::renderPixel(int x, int y) {
 		}
 	}
 }
-glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
+glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF, const glm::vec3 throughput) {
 	if (depth > MAX_DEPTH) {
-		return m_scene->getBackground();
+		//超过最大弹射深度：直接截断，不再把背景能量注入这段路径
+		//（背景只在射线真正飞出场景、未命中任何物体时才计入）
+		return glm::vec3(0);
 	}
 
 	Intersection intersection;
@@ -186,8 +188,19 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF) {
 		return direct;
 	}
 	Ray newRay(intersection.point + intersection.normal * 1e-3f, wi);
-	glm::vec3 radiance = trace(newRay, depth + 1, brdfPDF);
-	glm::vec3 indirect = brdf * radiance * glm::dot(intersection.normal, wi) / brdfPDF;
+	glm::vec3 weight = brdf * glm::dot(intersection.normal, wi) / brdfPDF;
+	//俄罗斯轮盘赌：按“到下一段为止的累计吞吐量”决定继续概率 q，中止时只保留本段直接光，
+	//存活时把权重除以 q 以保持无偏（传给更深处的累计吞吐量同样带上补偿）
+	float q = 1.f;
+	if (depth >= RR_START_DEPTH) {
+		glm::vec3 next = throughput * weight;
+		q = glm::clamp(glm::max(next.x, glm::max(next.y, next.z)), RR_MIN_Q, 1.f);
+		if (q < 1.f && m_sampler->getRandom(0u) >= q) {
+			return direct;
+		}
+	}
+	glm::vec3 radiance = trace(newRay, depth + 1, brdfPDF, throughput * weight / q);
+	glm::vec3 indirect = weight * radiance / q;
 	return direct + indirect;
 }
 
