@@ -11,7 +11,7 @@ Light::Light(const std::vector<int>& faces, const glm::vec3& radiance, Model* mo
 }
 
 float Light::getCos(int face, glm::vec3 direction) const {
-	glm::vec3* vertices = m_model->getFace(face);
+	const glm::vec3* vertices = m_model->getFace(face);
 	//直接通过叉乘三角形的两条边获取该面的法线
 	glm::vec3 normal = glm::normalize(glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[0]));
 	return glm::dot(normal, direction);
@@ -21,7 +21,7 @@ glm::vec3 Light::sample(float rnd, glm::vec2 uv, int& face) const {
 	//此处通过重心坐标插值获得采样点，通过以下变换即可保证在三角形上均匀采样
 	float u = 1 - glm::sqrt(uv.x), v = uv.y * (1 - u);
 	face = selectFace(rnd);
-	glm::vec3* vertices = m_model->getFace(face);
+	const glm::vec3* vertices = m_model->getFace(face);
 	return vertices[0] * u + vertices[1] * v + (1 - u - v) * vertices[2];
 }
 
@@ -39,7 +39,7 @@ void Light::calculateWeight() {
 	m_faceWeights.reserve(m_faces.size());
 	std::vector<float> areas;
 	for (const auto& face : m_faces) {
-		glm::vec3* vertices = m_model->getFace(face);
+		const glm::vec3* vertices = m_model->getFace(face);
 		//S(三角形) = 0.5 * bc * sinA = 0.5 * ||vector(b) × vector(c)||
 		glm::vec3 cross = glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[0]);
 		float area = 0.5f * glm::length(cross);

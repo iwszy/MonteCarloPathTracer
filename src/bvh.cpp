@@ -202,7 +202,7 @@ bool BVH::hit(Ray& ray, const float t0, float t1, Intersection &intersection, co
 
 bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersection& intersection, const int id) const {
 	//根据射线与三角形求交的公式进行计算
-	glm::vec3* face = m_model->getFace(id);
+	const glm::vec3* face = m_model->getFace(id);
 	glm::vec3 e1 = face[1] - face[0], e2 = face[2] - face[0], s = ray.origin - face[0];
 	glm::vec3 s1 = glm::cross(ray.direction, e2), s2 = glm::cross(s, e1);
 	float invSE1 = glm::dot(s1, e1);

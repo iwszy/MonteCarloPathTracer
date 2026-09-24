@@ -11,41 +11,14 @@
 /// </summary>
 struct Face {
 	/// <summary>
-	/// 索引数组，每个元素都是一个向量，第一项表示uv坐标索引，第二项表示法线索引
+	/// 索引数组：每个元素含纹理坐标索引与法线索引（-1 表示无）。
+	/// 改为定长数组后 Face 不再拥有堆内存，每个面片少一次 new/delete。
 	/// </summary>
-	glm::ivec2* indices;
+	glm::ivec2 indices[3];
 	/// <summary>
 	///	对应的材质名称
 	/// </summary>
 	std::string materialName;
-
-	Face() {
-		indices = new glm::ivec2[3];
-	}
-
-	~Face() {
-		delete[] indices;
-	}
-
-	Face(const Face& other) :
-		indices(new glm::ivec2[3]),
-		materialName(other.materialName)
-	{
-		std::copy_n(other.indices, 3, indices);
-	}
-
-	Face& operator=(const Face& other) {
-		if (this != &other) {
-			glm::ivec2* newIndices = new glm::ivec2[3];
-			std::copy_n(other.indices, 3, newIndices);
-
-			delete[] indices;
-
-			indices = newIndices;
-			materialName = other.materialName;
-		}
-		return *this;
-	}
 };
 
 /// <summary>
@@ -72,7 +45,7 @@ public:
 	/// </summary>
 	/// <param name="i">面索引</param>
 	/// <returns>对应三角面的顶点位置数组</returns>
-	glm::vec3* getFace(int i) const;
+	const glm::vec3* getFace(int i) const;
 	/// <summary>
 	/// 根据面的索引获取对应的UV纹理坐标
 	/// </summary>
@@ -169,7 +142,10 @@ private:
 	/// <summary>
 	/// 模型的各个面的顶点的数组
 	/// </summary>
-	std::vector<glm::vec3*> m_faceVertices;
+	/// <summary>
+	/// 每个面片 3 个顶点，按面片顺序连续存放（值语义，省掉每面一次堆分配）
+	/// </summary>
+	std::vector<glm::vec3> m_faceVertices;
 	/// <summary>
 	/// 模型的使用的材质库中材质名称到材质的映射
 	/// </summary>

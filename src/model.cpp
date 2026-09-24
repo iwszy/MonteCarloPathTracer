@@ -75,9 +75,6 @@ Model::Model() {
 }
 
 Model::~Model() {
-	for (auto vertices: m_faceVertices) {
-		delete[] vertices;
-	}
 }
 
 void Model::loadMTL(const std::string& filepath) {
@@ -170,7 +167,7 @@ void Model::loadModel(std::string& filepath) {
 	m_normals.reserve(normalNum);
 	m_texcoords.reserve(texcoordNum);
 	m_faces.reserve(faceNum);
-	m_faceVertices.reserve(faceNum);
+	m_faceVertices.resize(static_cast<size_t>(faceNum) * 3);
 
 	for (size_t pos = 0, size = content.size(); pos < size;) {
 		size_t eol = content.find('\n', pos);
@@ -208,7 +205,7 @@ void Model::loadModel(std::string& filepath) {
 			p += 1;
 			Face face;
 			face.materialName = currentMaterial;
-			glm::vec3* faceVertices = new glm::vec3[3];
+			const size_t vertexBase = m_faces.size() * 3;
 			int vIndex = 0;
 			while (vIndex < 3) {
 				skipBlank(p, end);
@@ -224,11 +221,10 @@ void Model::loadModel(std::string& filepath) {
 					}
 				}
 				face.indices[vIndex] = glm::ivec2(texcoordIndex, normalIndex);
-				faceVertices[vIndex] = (vertexIndex >= 0 && vertexIndex < static_cast<int>(vertices.size())) ? vertices[vertexIndex] : glm::vec3(0);
+				m_faceVertices[vertexBase + vIndex] = (vertexIndex >= 0) ? vertices[vertexIndex] : glm::vec3(0);
 				++vIndex;
 			}
 			m_faces.push_back(face);
-			m_faceVertices.push_back(faceVertices);
 			currentMat->faces.push_back(static_cast<int>(m_faces.size()) - 1);
 		}
 		else if (matchKeyword(p, end, "usemtl")) {
@@ -250,8 +246,8 @@ void Model::loadModel(std::string& filepath) {
 	}
 }
 
-glm::vec3* Model::getFace(int i) const {
-	return m_faceVertices[i];
+const glm::vec3* Model::getFace(int i) const {
+	return &m_faceVertices[static_cast<size_t>(i) * 3];
 }
 
 glm::vec2* Model::getUV(int i) const {
@@ -271,14 +267,16 @@ glm::vec3* Model::getNormal(int i) const {
 }
 
 void Model::calAxisParams() {
-	m_axisCenters = new glm::vec3[m_faceVertices.size()];
-	m_axisMaximums = new glm::vec3[m_faceVertices.size()];
-	m_axisMinimums = new glm::vec3[m_faceVertices.size()];
+	const size_t faceNum = m_faces.size();
+	m_axisCenters = new glm::vec3[faceNum];
+	m_axisMaximums = new glm::vec3[faceNum];
+	m_axisMinimums = new glm::vec3[faceNum];
 	glm::vec3 max, min;
-	for (size_t i = 0; i < m_faceVertices.size(); i++) {
+	for (size_t i = 0; i < faceNum; i++) {
+		const glm::vec3* v = &m_faceVertices[i * 3];
 		for (int j = 0; j < 3; j++){
-			max[j] = glm::max(m_faceVertices[i][0][j], glm::max(m_faceVertices[i][1][j], m_faceVertices[i][2][j]));
-			min[j] = glm::min(m_faceVertices[i][0][j], glm::min(m_faceVertices[i][1][j], m_faceVertices[i][2][j]));
+			max[j] = glm::max(v[0][j], glm::max(v[1][j], v[2][j]));
+			min[j] = glm::min(v[0][j], glm::min(v[1][j], v[2][j]));
 		}
 		m_axisCenters[i] = glm::vec3((max + min) / 2.f);
 		m_axisMaximums[i] = glm::vec3(max);
