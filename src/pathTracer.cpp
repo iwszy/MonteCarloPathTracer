@@ -96,7 +96,9 @@ void PathTracer::saveHDR(const std::string& modelName) const {
 void PathTracer::save(std::string modelName) const {
 	stbi_flip_vertically_on_write(1);
 	developImage();
-	saveHDR(modelName);
+	//暂时不保存 HDR（.hdr 文件仅用于线性域调试）：需要时取消下面这行注释即可，
+	//saveHDR() 的实现仍然保留。
+	//saveHDR(modelName);
 	stbi_write_png(modelName.insert(0, "results/").append("_").append(std::to_string(m_spp)).append(".png").c_str(),
 		m_camera->getWidth(), m_camera->getHeight(), 4, m_image, 0);
 }
