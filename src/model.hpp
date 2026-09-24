@@ -91,6 +91,10 @@ public:
 	/// <param name="i">面索引</param>
 	/// <returns>对应三角面的材质</returns>
 	const Material& getMaterial(int i) const { return m_materials.at(m_faces[i].materialName); }
+	/// 直接引用面数据与顶点属性，避免求交热路径上的 new/delete
+	const Face& getFaceData(int i) const { return m_faces[i]; }
+	const glm::vec3& getVertexNormal(int i) const { return m_normals[i]; }
+	const glm::vec2& getVertexUV(int i) const { return m_texcoords[i]; }
 	/// <summary>
 	/// 根据材质名称获取对应的材质
 	/// </summary>

@@ -158,16 +158,19 @@ bool BVH::hitTriangle(const Ray& ray, const float t0, const float t1, Intersecti
 	}
 	intersection.point = ray.at(t);
 	intersection.t = t;
-	glm::vec3* normals = m_model->getNormal(id);
-	intersection.setNormal(glm::normalize(alpha * normals[0] + beta * normals[1] + gamma * normals[2]));
+	const Face& faceData = m_model->getFaceData(id);
+	intersection.setNormal(glm::normalize(
+		alpha * m_model->getVertexNormal(faceData.indices[0].y) +
+		beta * m_model->getVertexNormal(faceData.indices[1].y) +
+		gamma * m_model->getVertexNormal(faceData.indices[2].y)));
 	intersection.material = &m_model->getMaterial(id);
 	if (intersection.material->texture != nullptr) {
-		glm::vec2* uvs = m_model->getUV(id);
-		intersection.uv = alpha * uvs[0] + beta * uvs[1] + gamma * uvs[2];
-		delete[] uvs;
+		intersection.uv =
+			alpha * m_model->getVertexUV(faceData.indices[0].x) +
+			beta * m_model->getVertexUV(faceData.indices[1].x) +
+			gamma * m_model->getVertexUV(faceData.indices[2].x);
 	}
 	intersection.id = id;
-	delete[] normals;
 	return true;
 }
 
