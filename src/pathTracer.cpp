@@ -1,4 +1,5 @@
-﻿#include "pathTracer.hpp"
+﻿#include <atomic>
+#include "pathTracer.hpp"
 #include "constant.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.hpp"
@@ -106,18 +107,45 @@ void PathTracer::save(std::string modelName) const {
 
 void PathTracer::render() {
 	//将图像分为若干块，每块大小为32*32，然后将每一块的渲染分到不同的线程处理
-	int width = static_cast<int>(glm::ceil(m_camera->getWidth() / 32.f));
-	int height = static_cast<int>(glm::ceil(m_camera->getHeight() / 32.f));
-	std::vector<std::unique_ptr<std::thread>> m_pixelThreads;
+	//tile 之间互不影响（采样器按像素初始化），因此下面两种调度方式结果逐字节相同，只是并发度不同
+	constexpr int TILE_SHIFT = 5;
+	constexpr int TILE_SIZE = 1 << TILE_SHIFT;
+	const int tilesX = static_cast<int>(glm::ceil(m_camera->getWidth() / static_cast<float>(TILE_SIZE)));
+	const int tilesY = static_cast<int>(glm::ceil(m_camera->getHeight() / static_cast<float>(TILE_SIZE)));
+	const int tileCount = tilesX * tilesY;
 	std::function<void(PathTracer*, int, int)> f = &PathTracer::renderPixel;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			m_pixelThreads.push_back(std::make_unique<std::thread>(f, this, x, y));
+
+	//默认（--threads 0）或线程数不少于 tile 数：每个 tile 起一个线程，与原实现一致
+	if (m_threadCount <= 0 || m_threadCount >= tileCount) {
+		std::vector<std::unique_ptr<std::thread>> pixelThreads;
+		for (int y = 0; y < tilesY; y++) {
+			for (int x = 0; x < tilesX; x++) {
+				pixelThreads.push_back(std::make_unique<std::thread>(f, this, x, y));
+			}
 		}
+		for (auto& thread : pixelThreads) {
+			thread->join();
+		}
+		return;
 	}
 
-	for (auto& thread : m_pixelThreads) {
-		thread->join();
+	//指定线程数（--threads N）：固定 N 个 worker 从原子计数器依次领取 tile
+	std::atomic<int> nextTile{ 0 };
+	std::vector<std::thread> workers;
+	workers.reserve(m_threadCount);
+	for (int i = 0; i < m_threadCount; i++) {
+		workers.emplace_back([&]() {
+			for (;;) {
+				const int index = nextTile.fetch_add(1);
+				if (index >= tileCount) {
+					return;
+				}
+				renderPixel(index % tilesX, index / tilesX);
+			}
+		});
+	}
+	for (auto& worker : workers) {
+		worker.join();
 	}
 }
 

@@ -65,6 +65,10 @@ public:
 	/// </summary>
 	void setRussianRoulette(bool enabled) { m_rrEnabled = enabled; }
 	/// <summary>
+	/// 设置渲染线程数（命令行 --threads），0 表示每个 tile 一个线程
+	/// </summary>
+	void setThreadCount(int count) { m_threadCount = count < 0 ? 0 : count; }
+	/// <summary>
 	/// 设置结果输出目录（命令行 --out），默认 results
 	/// </summary>
 	void setOutputDir(const std::string& dir) { m_outputDir = dir; }
@@ -120,6 +124,11 @@ private:
 	/// 是否启用俄罗斯轮盘赌（命令行 --rr，默认开启）
 	/// </summary>
 	bool m_rrEnabled = true;
+	/// <summary>
+	/// 渲染线程数（命令行 --threads）：0 表示每个 tile 一个线程（默认，与原先一致），
+	/// N>0 表示用 N 个 worker 线程轮流领取 tile
+	/// </summary>
+	int m_threadCount = 0;
 	/// <summary>
 	/// 结果输出目录（命令行 --out，默认 results）
 	/// </summary>

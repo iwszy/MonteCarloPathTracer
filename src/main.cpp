@@ -22,6 +22,7 @@ struct Options {
     int tonemap = -1;      ///< <0 表示沿用 xml 中的色调曲线
     int maxDepth = -1;     ///< <0 表示用内置默认（MAX_DEPTH）
     bool rr = true;
+    int threads = 0;       ///< 0 表示每个 tile 一个线程（默认）
     std::string outDir = "results";
     bool saveHDR = false;
     bool noSave = false;
@@ -45,6 +46,7 @@ void printUsage(const char* exe) {
         << "      --tonemap <模式>   色调曲线: linear | aces | reinhard  [默认取 xml]" << "\n"
         << "      --max-depth <整数> 最大弹射深度                        [默认 16]" << "\n"
         << "      --rr <on|off>      俄罗斯轮盘赌                        [默认 on]" << "\n"
+        << "      --threads <整数>   渲染线程数（0=每个 tile 一个线程）    [默认 0]" << "\n"
         << "\n"
         << "输出" << "\n"
         << "  -o, --out <目录>       结果目录（不存在会自动创建）        [默认 results]" << "\n"
@@ -178,6 +180,12 @@ void parseArgs(int argc, char** argv, Options& opt) {
             } else {
                 fail(argv[0], "--rr 只能是 on 或 off");
             }
+        } else if (arg == "--threads") {
+            long v = 0;
+            if (!parseLong(valueOf("--threads"), v) || v < 0 || v > 65536) {
+                fail(argv[0], "--threads 需要 0~65536 之间的整数（0 表示每个 tile 一个线程）");
+            }
+            opt.threads = static_cast<int>(v);
         } else if (arg == "-o" || arg == "--out") {
             opt.outDir = valueOf("--out");
             if (opt.outDir.empty()) {
@@ -265,6 +273,7 @@ int main(int argc, char** argv) {
         pathTracer.setMaxDepth(opt.maxDepth);
     }
     pathTracer.setRussianRoulette(opt.rr);
+    pathTracer.setThreadCount(opt.threads);
     pathTracer.setOutputDir(opt.outDir);
     pathTracer.setSaveHDR(opt.saveHDR);
 
