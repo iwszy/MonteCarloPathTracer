@@ -16,7 +16,7 @@ Scene::~Scene() {
 	}
 }
 
-Camera* Scene::loadXML(const std::string& filepath, Model* model) {
+Camera* Scene::loadXML(const std::string& filepath, Model* model, int overrideWidth, int overrideHeight) {
 	XMLDocument doc;
 	if (doc.LoadFile(filepath.c_str()) != XML_SUCCESS) {
 		std::cerr << "Error: Could not open xml file " << filepath << "\n";
@@ -39,6 +39,9 @@ Camera* Scene::loadXML(const std::string& filepath, Model* model) {
 	}
 	int width = cameraElement->IntAttribute("width");
 	int height = cameraElement->IntAttribute("height");
+	//命令行 --width/--height 覆盖 xml 中的分辨率（用于快速预览与基准测试）
+	if (overrideWidth > 0) { width = overrideWidth; }
+	if (overrideHeight > 0) { height = overrideHeight; }
 	float fov = cameraElement->FloatAttribute("fovy");
 	//相机曝光：可选属性，缺省用默认值（不同场景参考图的曝光本来就不同，这里允许逐场景指定）
 	float exposure = cameraElement->FloatAttribute("exposure", DEFAULT_EXPOSURE);

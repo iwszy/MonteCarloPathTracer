@@ -20,7 +20,7 @@ public:
 	/// <param name="filepath">xml文件位置</param>
 	/// <param name="model">模型类</param>
 	/// <returns>相机类</returns>
-	Camera* loadXML(const std::string& filepath, Model* model);
+	Camera* loadXML(const std::string& filepath, Model* model, int overrideWidth = 0, int overrideHeight = 0);
 	/// <summary>
 	/// 构建BVH
 	/// </summary>
@@ -52,6 +52,10 @@ public:
 	glm::vec3 getBackground() const { return m_background; }
 	/// 色调曲线：0=线性截断(作业参考图管线) 1=ACES 2=Reinhard
 	int getTonemap() const { return m_tonemap; }
+	/// <summary>
+	/// 设置色调曲线（命令行 --tonemap 覆盖 xml）：0=线性截断 1=ACES 2=Reinhard
+	/// </summary>
+	void setTonemap(int mode) { m_tonemap = mode < 0 ? 0 : (mode > 2 ? 2 : mode); }
 	/// <summary>
 	/// 获取场景中的光源数组
 	/// </summary>

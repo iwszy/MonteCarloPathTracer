@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <string>
+
 #include <mutex>
 #include "scene.hpp"
 #include "camera.hpp"
@@ -51,6 +53,26 @@ public:
 	/// </summary>
 	float getExposure() const { return m_exposure; }
 	/// <summary>
+	/// 设置每像素采样数（命令行 --spp）
+	/// </summary>
+	void setSpp(int spp) { m_spp = spp < 1 ? 1 : spp; }
+	/// <summary>
+	/// 设置最大弹射深度（命令行 --max-depth），默认 MAX_DEPTH
+	/// </summary>
+	void setMaxDepth(int depth) { m_maxDepth = depth < 1 ? 1 : depth; }
+	/// <summary>
+	/// 开关俄罗斯轮盘赌（命令行 --rr），默认开启
+	/// </summary>
+	void setRussianRoulette(bool enabled) { m_rrEnabled = enabled; }
+	/// <summary>
+	/// 设置结果输出目录（命令行 --out），默认 results
+	/// </summary>
+	void setOutputDir(const std::string& dir) { m_outputDir = dir; }
+	/// <summary>
+	/// 是否额外保存线性 HDR（命令行 --save-hdr），默认关闭
+	/// </summary>
+	void setSaveHDR(bool enabled) { m_saveHDR = enabled; }
+	/// <summary>
 	/// 把线性 HDR 缓冲显影为 8bit 显示图：曝光 -> ACES 色调映射 -> sRGB 编码
 	/// </summary>
 	void developImage() const;
@@ -90,6 +112,22 @@ private:
 	/// 相机曝光系数（物理辐射亮度 -> 色调映射输入）
 	/// </summary>
 	float m_exposure;
+	/// <summary>
+	/// 最大弹射深度（可由命令行 --max-depth 覆盖，默认 MAX_DEPTH）
+	/// </summary>
+	int m_maxDepth = MAX_DEPTH;
+	/// <summary>
+	/// 是否启用俄罗斯轮盘赌（命令行 --rr，默认开启）
+	/// </summary>
+	bool m_rrEnabled = true;
+	/// <summary>
+	/// 结果输出目录（命令行 --out，默认 results）
+	/// </summary>
+	std::string m_outputDir = "results";
+	/// <summary>
+	/// 是否额外保存线性 HDR（命令行 --save-hdr，默认关闭）
+	/// </summary>
+	bool m_saveHDR = false;
 
 	/// <summary>
 	/// 渲染像素块中像素

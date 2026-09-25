@@ -88,7 +88,7 @@ void PathTracer::developImage() const {
 
 void PathTracer::saveHDR(const std::string& modelName) const {
 	//线性 HDR 结果（Radiance .hdr / RGBE），方便后期自己调曝光与色调映射
-	std::string path = "results/" + modelName + "_" + std::to_string(m_spp) + ".hdr";
+	std::string path = m_outputDir + "/" + modelName + "_" + std::to_string(m_spp) + ".hdr";
 	stbi_flip_vertically_on_write(1);
 	stbi_write_hdr(path.c_str(), m_camera->getWidth(), m_camera->getHeight(), 3, m_hdrImage);
 }
@@ -96,11 +96,12 @@ void PathTracer::saveHDR(const std::string& modelName) const {
 void PathTracer::save(std::string modelName) const {
 	stbi_flip_vertically_on_write(1);
 	developImage();
-	//暂时不保存 HDR（.hdr 文件仅用于线性域调试）：需要时取消下面这行注释即可，
-	//saveHDR() 的实现仍然保留。
-	//saveHDR(modelName);
-	stbi_write_png(modelName.insert(0, "results/").append("_").append(std::to_string(m_spp)).append(".png").c_str(),
-		m_camera->getWidth(), m_camera->getHeight(), 4, m_image, 0);
+	//线性 HDR 默认不保存（.hdr 只用于线性域调试），需要时用命令行 --save-hdr 打开
+	if (m_saveHDR) {
+		saveHDR(modelName);
+	}
+	std::string path = m_outputDir + "/" + modelName + "_" + std::to_string(m_spp) + ".png";
+	stbi_write_png(path.c_str(), m_camera->getWidth(), m_camera->getHeight(), 4, m_image, 0);
 }
 
 void PathTracer::render() {
@@ -146,7 +147,7 @@ void PathTracer::renderPixel(int x, int y) {
 	}
 }
 glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF, const glm::vec3 throughput) {
-	if (depth > MAX_DEPTH) {
+	if (depth > m_maxDepth) {
 		//超过最大弹射深度：直接截断，不再把背景能量注入这段路径
 		//（背景只在射线真正飞出场景、未命中任何物体时才计入）
 		return glm::vec3(0);
@@ -194,7 +195,7 @@ glm::vec3 PathTracer::trace(Ray ray, int depth, const float bsdfPDF, const glm::
 	//俄罗斯轮盘赌：按“到下一段为止的累计吞吐量”决定继续概率 q，中止时只保留本段直接光，
 	//存活时把权重除以 q 以保持无偏（传给更深处的累计吞吐量同样带上补偿）
 	float q = 1.f;
-	if (depth >= RR_START_DEPTH) {
+	if (m_rrEnabled && depth >= RR_START_DEPTH) {
 		glm::vec3 next = throughput * weight;
 		q = glm::clamp(glm::max(next.x, glm::max(next.y, next.z)), RR_MIN_Q, 1.f);
 		if (q < 1.f && m_sampler->getRandom(0u) >= q) {
