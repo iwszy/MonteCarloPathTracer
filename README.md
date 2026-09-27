@@ -226,7 +226,6 @@ OBJ 解析重写（加载 −78%）、俄罗斯轮盘赌 + 深度上限 16（CPU
 ## 目录结构
 
 ```
-.
 ├── CMakeLists.txt                      # CMake 构建（MSVC / clang / gcc）
 ├── MonteCarloPathTracer.sln/.vcxproj   # Visual Studio 工程
 ├── src/                                # 渲染器源码（23 个文件）
@@ -239,8 +238,15 @@ OBJ 解析重写（加载 −78%）、俄罗斯轮盘赌 + 深度上限 16（CPU
 │   └── main.cpp                        # 命令行入口
 ├── include/                            # glm / stb / tinyxml2（第三方，随仓库提供）
 ├── models/                             # cornell-box / bathroom2 / veach-mis
-└── results/                            # 各 spp 渲染结果与课程参考图
+├── results/                            # 各 spp 渲染结果与课程参考图
+├── README.md                           # 项目介绍、用法与结果
+└── NOTES.md                            # 开发笔记（过程与经验）
 ```
+
+## 相关文档
+
+- [NOTES.md](NOTES.md)：开发笔记 —— 实测结论、光源与天花板共面那次完整排查、
+  踩过的坑与测量教训。
 
 ## 参考
 
