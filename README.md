@@ -1,5 +1,8 @@
 # MonteCarloPathTracer
 
+> 从零实现的 CPU 蒙特卡洛路径追踪器：C++17 + SAH BVH + NEE/MIS + Owen-scrambled Sobol，
+> 不依赖任何图形 API 与外部库（glm / stb / tinyxml2 随仓库提供）
+
 一个从零实现的 **CPU 蒙特卡洛路径追踪器**：SAH BVH + 下一事件估计（NEE）与多重重要性采样（MIS）、
 Owen-scrambled Sobol 低差异采样、HDR 线性累加与可切换色调映射、俄罗斯轮盘赌；全部使用 C++17
 标准库实现，第三方仅 glm / stb / tinyxml2（随仓库附带，位于 include/）。
@@ -17,7 +20,7 @@ Owen-scrambled Sobol 低差异采样、HDR 线性累加与可切换色调映射�
 同目录下还有课程参考图（`results/cornell-box-standard.png`、`results/bathroom2-standard.png`、
 `results/veach-mis-stardand.png`）以及每个场景 8 / 16 / 32 / 64 / 256 / 1024 spp 的渲染结果。
 
-## 功能特性
+## 核心特性
 
 **采样与积分**
 - 路径追踪 + 下一事件估计（NEE），光源采样与 BSDF 采样用 **power heuristic 的 MIS** 组合
@@ -72,7 +75,11 @@ cmake --build build --config Release -j
 ./build/Release/MonteCarloPathTracer.exe -s cornell-box -n 8 -W 320 -H 320 -o out -q
 ```
 
-## 命令行参数
+## 使用方式
+
+本程序是命令行工具，参数取值优先级为：命令行 > 场景 XML > 内置默认。
+
+### 命令行参数
 
 取值优先级：**命令行 > 场景 XML > 内置默认**。
 
@@ -102,7 +109,7 @@ done
 # 输出示例：scene=bathroom2 faces=1243943 spp=16 size=1280x720 load_ms=803.4 bvh_ms=956.0 render_ms=6970.2 png=-
 ```
 
-## 场景配置（XML）
+### 场景配置（XML）
 
 ```xml
 <scene>
@@ -200,12 +207,21 @@ OBJ 解析重写（加载 −78%）、俄罗斯轮盘赌 + 深度上限 16（CPU
   必然改变图像的改动（如 NEE 判定修复）则用 MAE、p95、亮区面积等统计量对比
 - **线性域比对**：`--save-hdr` 输出的 `.hdr` 用于避免 8bit sRGB 反解引入的误差
 
-## 已知限制
+## 已知限制与后续工作
+
+### 当前限制
 
 - veach-mis 相对参考图仍有约 20% 的整体亮度差与约 4% 的取景差异，尚未解决
 - 混合材质的 `specularBlend` 是在 `F0=0.04` 与 `F0=Ks` 之间插值以贴合参考图，属工程折中而非严格物理
 - 尚无透射/折射（玻璃）、降噪、SIMD/包式遍历；贴图仅支持 `map_Kd`
 - 光源可见性改用距离判定后对共面几何免疫，但相机射线在该区域仍有 z-fighting（建议把场景改成"天花板开洞"）
+
+### 后续工作
+
+1. **定位 veach-mis 的残差**：约 20% 的整体亮度差与约 4% 的取景差异（先对齐相机与几何，再查采样/权重）
+2. **透射与折射**：MTL 的 `Tr` / `Ni` 已解析进材质，补上玻璃支路即可
+3. **降噪**：曾实现过双边滤波（见 git 历史），可作为 "低 spp + 降噪" 的对比实验
+4. **SIMD / 包式遍历**：目前是标量遍历，可先做叶子内 4 三角形的 SoA 版本
 
 ## 目录结构
 
@@ -225,3 +241,12 @@ OBJ 解析重写（加载 −78%）、俄罗斯轮盘赌 + 深度上限 16（CPU
 ├── models/                             # cornell-box / bathroom2 / veach-mis
 └── results/                            # 各 spp 渲染结果与课程参考图
 ```
+
+## 参考
+
+- Burley. *Practical Hash-based Owen Scrambling*. JCGT 2020（采样器实现依据）
+- Joe, Kuo. *Constructing Sobol sequences with better two-dimensional projections*（方向数来源）
+- Vegdahl. *Building a better Laine-Karras hash*（scrambler 哈希）
+- Veach. *Robust Monte Carlo Methods for Light Transport Simulation*. 1997（MIS 与 power heuristic）
+- Pharr, Jakob, Humphreys. *Physically Based Rendering*（路径追踪与 MIS 的通用参考）
+- 课程提供的参考图：`results/cornell-box-standard.png`、`results/bathroom2-standard.png`、`results/veach-mis-stardand.png`
